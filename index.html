@@ -1,0 +1,2535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Law School Notebook</title>
+<style>
+  :root{
+    --bg:#ffffff; --sidebar:#f7f7f5; --text:#37352f; --text-soft:#787774;
+    --line:#ececea; --hover:#efefed; --active:#e8e8e6;
+    --accent:#2e6da4; --callout:#fbf3db; --callout-line:#f1e3bb;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    color:var(--text); background:var(--bg); display:flex; overflow:hidden;
+  }
+
+  /* ---------- Sidebar ---------- */
+  #sidebar{
+    width:260px; min-width:260px; background:var(--sidebar); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; height:100vh;
+  }
+  #sidebar header{padding:16px 14px 10px; display:flex; align-items:center; gap:8px;}
+  #sidebar header .logo{font-size:18px;}
+  #sidebar header .title{font-weight:600; font-size:14px; border-radius:4px; padding:1px 4px; outline:none; cursor:text;}
+  #sidebar header .subtitle{font-size:11px; color:var(--text-soft); border-radius:4px; padding:1px 4px; outline:none; cursor:text;}
+  #sidebar header .title:hover, #sidebar header .subtitle:hover{background:var(--hover);}
+  #sidebar header .title:focus, #sidebar header .subtitle:focus{background:#fff; box-shadow:0 0 0 2px var(--accent);}
+  #courseList{flex:1; overflow-y:auto; padding:4px 8px 8px;}
+  .course{margin-bottom:2px;}
+  .course-row{
+    display:flex; align-items:center; gap:6px; padding:5px 8px; border-radius:var(--radius);
+    cursor:pointer; font-size:13.5px; font-weight:600; user-select:none;
+  }
+  .course-row:hover{background:var(--hover);}
+  .course-row .chev{font-size:10px; color:var(--text-soft); width:12px; transition:transform .15s;}
+  .course.open .chev{transform:rotate(90deg);}
+  .course-row .cname{
+    flex:1; min-width:0; white-space:normal; line-height:1.35;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .row-btn{
+    border:none; background:none; color:var(--text-soft); cursor:pointer; font-size:11px;
+    border-radius:4px; padding:1px 3px; display:none; flex:none;
+  }
+  .course-row:hover .row-btn, .note-row:hover .row-btn{display:inline-block;}
+  .row-btn:hover{background:var(--active); color:var(--text);}
+  .notes{display:none; padding-left:14px;}
+  .course.open .notes{display:block;}
+  .note-row{
+    display:flex; align-items:center; gap:6px; padding:4px 8px; border-radius:var(--radius);
+    cursor:pointer; font-size:13px; color:var(--text-soft);
+  }
+  .note-row:hover{background:var(--hover);}
+  .note-row.active{background:var(--active); color:var(--text); font-weight:500;}
+  .note-row .nname{
+    flex:1; min-width:0; white-space:normal; line-height:1.35;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  /* ---------- Embedded PDFs in notes ---------- */
+  .embed-pdf{
+    border:1px solid var(--line); border-radius:8px; margin:14px 0; background:#f7f7f5;
+    overflow:hidden;
+  }
+  .embed-pdf .pdf-header{
+    display:flex; align-items:center; gap:8px; padding:9px 12px; background:#fafafa;
+    border-bottom:1px solid var(--line); font-size:12.5px; color:var(--text);
+  }
+  .embed-pdf .pdf-name{flex:1; font-weight:500; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .embed-pdf .pdf-close{background:none; border:none; cursor:pointer; color:var(--text-soft); font-size:15px; padding:0 4px; border-radius:4px;}
+  .embed-pdf .pdf-close:hover{color:#c14c4c; background:var(--hover);}
+  .embed-pdf .pdf-viewer{
+    width:100%; min-height:200px; display:flex; align-items:center; justify-content:center;
+    background:#ececea; color:var(--text-soft); font-size:13px;
+  }
+  .embed-pdf .pdf-viewer canvas{max-width:100%; height:auto; display:block;}
+  .embed-pdf .pdf-controls{
+    display:flex; align-items:center; gap:8px; padding:7px 12px; background:#fafafa;
+    border-top:1px solid var(--line); font-size:12px; justify-content:center;
+  }
+  .embed-pdf .pdf-controls button{background:none; border:1px solid var(--line); border-radius:4px; cursor:pointer; padding:2px 10px; font-size:12px; color:var(--text);}
+  .embed-pdf .pdf-controls button:hover{background:var(--hover);}
+  .embed-pdf .pdf-pagenum{width:48px; text-align:center; border:1px solid var(--line); border-radius:4px; padding:2px 4px; font-size:12px;}
+  .embed-pdf .pdf-count{color:var(--text-soft);}
+  #addCourse{
+    margin:8px; padding:7px 10px; font-size:13px; color:var(--text-soft);
+    border:none; background:none; text-align:left; cursor:pointer; border-radius:var(--radius);
+  }
+  #addCourse:hover{background:var(--hover); color:var(--text);}
+
+  /* ---------- Main ---------- */
+  #main{flex:1; display:flex; flex-direction:column; height:100vh; min-width:0;}
+
+  #topbar{
+    display:flex; align-items:center; gap:10px; padding:8px 20px;
+    border-bottom:1px solid var(--line); min-height:46px;
+  }
+  #saveStatus{font-size:12px; color:var(--text-soft); margin-left:auto;}
+  .icon-btn{
+    border:1px solid var(--line); background:#fff; border-radius:var(--radius);
+    padding:5px 10px; font-size:13px; cursor:pointer; color:var(--text);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .icon-btn:hover{background:var(--hover);}
+  .icon-btn:disabled{opacity:.5; cursor:default;}
+
+  /* ---------- Toolbar ---------- */
+  #toolbar{
+    display:flex; align-items:center; gap:4px; flex-wrap:wrap;
+    padding:6px 20px; border-bottom:1px solid var(--line);
+  }
+  .tb-btn{
+    border:none; background:none; border-radius:4px; cursor:pointer;
+    min-width:28px; height:28px; font-size:14px; color:var(--text);
+  }
+  .tb-btn:hover{background:var(--hover);}
+  .tb-sep{width:1px; height:20px; background:var(--line); margin:0 6px;}
+  select.tb-select{
+    border:1px solid var(--line); border-radius:4px; background:#fff; color:var(--text);
+    font-size:12.5px; height:28px; padding:0 4px; cursor:pointer;
+  }
+  .swatch-wrap{position:relative;}
+  .palette{
+    position:absolute; top:32px; left:0; z-index:30; background:#fff; border:1px solid var(--line);
+    border-radius:8px; box-shadow:0 6px 24px rgba(0,0,0,.12); padding:10px; display:none;
+    grid-template-columns:repeat(5,26px); gap:6px;
+  }
+  .palette.open{display:grid;}
+  .palette .sw{
+    width:26px; height:26px; border-radius:5px; cursor:pointer; border:1px solid rgba(0,0,0,.12);
+  }
+  .palette .sw:hover{outline:2px solid var(--accent);}
+
+  /* ---------- Editor ---------- */
+  #editorWrap{flex:1; overflow-y:auto;}
+  /* ---------- Cover system (selectable) ---------- */
+  #cover{height:190px; position:relative; overflow:hidden; border-bottom:1px solid var(--line);}
+  .cover-script{
+    position:absolute; left:110px; bottom:34px;
+    font-family:Georgia,'Times New Roman',serif; font-style:italic;
+    font-size:26px; color:#8a7a2e; opacity:.8; pointer-events:none;
+    text-shadow:0 1px 0 rgba(255,255,255,.45);
+  }
+  .cover-clip{
+    position:absolute; top:8px; right:46px; width:22px; height:56px;
+    border:3px solid #9aa4ad; border-radius:11px/14px;
+    border-bottom-color:transparent; opacity:.8; transform:rotate(6deg);
+  }
+  #coverBtn{position:absolute; top:12px; right:88px; opacity:0; transition:opacity .15s; z-index:6;}
+  #cover:hover #coverBtn{opacity:1;}
+  #coverPicker{
+    position:fixed; z-index:60; background:#fff;
+    border:1px solid var(--line); border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.14);
+    padding:12px; display:none; width:398px; max-width:92vw;
+    max-height:72vh; overflow-y:auto;
+  }
+  #coverPicker.open{display:block;}
+  .cp-grid{display:grid; grid-template-columns:repeat(4,84px); gap:10px;}
+  .cp-custom{margin-top:12px; border-top:1px solid var(--line); padding-top:10px;}
+  .cp-custom .cp-label{font-size:11px; color:var(--text-soft); text-transform:uppercase; letter-spacing:.04em; margin-bottom:7px;}
+  .cp-swatches{display:flex; flex-wrap:wrap; gap:7px; align-items:center;}
+  .cp-swatches .sw{width:26px; height:26px; border-radius:6px; cursor:pointer; border:1px solid rgba(0,0,0,.15);}
+  .cp-swatches .sw:hover{outline:2px solid var(--accent);}
+  input[type=color].cp-input{width:38px; height:28px; border:1px solid var(--line); border-radius:6px; padding:1px; background:#fff; cursor:pointer;}
+  .cv-thumb{width:84px; cursor:pointer; text-align:center;}
+  .cv-thumb .prev{height:48px; border-radius:6px; border:1px solid var(--line); position:relative; overflow:hidden;}
+  .cv-thumb:hover .prev{outline:2px solid var(--accent);}
+  .cv-thumb .lbl{font-size:11px; color:var(--text-soft); margin-top:4px;}
+
+  /* Cover styles */
+  .cv-legal{
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 27px, #a8c3dd 27px 28px),
+      linear-gradient(to bottom, #f7e98e 0, #fbf0a9 40px, #fdf3b0 100%);
+  }
+  .cv-legal::before{content:""; position:absolute; top:0; bottom:0; left:14%; width:2px; background:#e08c8c; opacity:.85;}
+  .cv-legal::after{
+    content:""; position:absolute; top:0; left:0; right:0; height:22px;
+    background:
+      radial-gradient(circle 3px at 20px 11px, #fff 98%, transparent 100%),
+      linear-gradient(to bottom, #e8d87e, #f2e58e);
+    background-size:40px 22px, 100% 100%; background-repeat:repeat-x, no-repeat;
+    border-bottom:1px solid #d8c874;
+  }
+  .cv-ruled{
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 27px, #bcd3e8 27px 28px),
+      linear-gradient(to bottom, #fcfcfa, #ffffff);
+  }
+  .cv-ruled::before{content:""; position:absolute; top:0; bottom:0; left:14%; width:2px; background:#e8a0a0;}
+  .cv-ruled .cover-script{color:#4a6b8a;}
+  .cv-grid{
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 21px, #d7e4d7 21px 22px),
+      repeating-linear-gradient(to right, transparent 0 21px, #d7e4d7 21px 22px),
+      #fbfdfb;
+  }
+  .cv-grid .cover-script{color:#5a7a5a;}
+  .cv-kraft{
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.14), transparent 55%),
+      linear-gradient(to bottom, #c9a876, #bd9a66);
+  }
+  .cv-kraft .cover-script{color:#5d4a2e; text-shadow:none;}
+  .cv-navy{
+    background:
+      radial-gradient(ellipse at 25% 15%, rgba(255,255,255,.10), transparent 50%),
+      linear-gradient(135deg, #1e2a44, #2b3a5c 60%, #1c2740);
+  }
+  .cv-navy .cover-script{color:#d9c27a; text-shadow:none;}
+  .cv-navy .cover-clip{display:none;}
+  .cv-navy::after{content:""; position:absolute; left:0; right:0; bottom:26px; height:1px; background:rgba(217,194,122,.4);}
+  .cv-pink{background:linear-gradient(135deg,#fde7ec,#f9d5e0 55%,#f3c6d6);}
+  .cv-pink .cover-script{color:#a05a74; text-shadow:none;}
+  .cv-mint{background:linear-gradient(135deg,#e3f5ec,#cfeee0 55%,#bfe6d4);}
+  .cv-mint .cover-script{color:#3f7a5f; text-shadow:none;}
+
+  #editorInner{max-width:780px; margin:0 auto; padding:36px 40px 120px;}
+  #noteTitle{
+    width:100%; border:none; outline:none; font-size:32px; font-weight:700;
+    color:var(--text); padding:0 0 6px; background:transparent;
+    font-family:inherit;
+  }
+  #noteTitle::placeholder{color:#d3d1cb;}
+  #noteMeta{font-size:12px; color:var(--text-soft); margin-bottom:18px;}
+  #editor{
+    min-height:50vh; outline:none; font-size:16px; line-height:1.7; word-break:break-word;
+  }
+  #editor:empty::before{content:"Start typing your class notes here…"; color:#d3d1cb;}
+  .fs-ctrl{display:inline-flex; align-items:center; gap:2px;}
+  #fsInput{
+    width:44px; text-align:center; border:1px solid var(--line); border-radius:4px;
+    height:26px; font-size:12.5px; outline:none; -moz-appearance:textfield;
+  }
+  #fsInput::-webkit-outer-spin-button, #fsInput::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+  #fsInput:focus{border-color:var(--accent);}
+  #editor h1{font-size:1.6em;} 
+  #editor h2{font-size:1.5em; font-weight:800; margin:20px 0 8px; line-height:1.3;}
+  #editor h3{
+    font-size:1.05em; font-weight:700; margin:16px 0 10px; line-height:1.4;
+    background:#faf1e5; border:1px solid #f0e0c8; border-radius:8px; padding:9px 14px;
+  }
+  /* ---------- Callout box (like the purple reading-notes box) ---------- */
+  .nb-box{
+    background:var(--bb,#ebe7f5); border-radius:14px; padding:18px 22px; margin:16px 0;
+    position:relative;
+  }
+  .nb-box-title{
+    color:var(--ba,#6b4fa1); font-weight:600; font-size:.95em;
+    letter-spacing:.07em; text-transform:uppercase;
+    text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1px;
+    margin-bottom:9px; outline:none; min-height:1.2em;
+  }
+  .nb-box-title:empty::before{content:"제목 입력…"; opacity:.4; text-transform:none; letter-spacing:normal;}
+  .nb-box-body{line-height:1.8; outline:none;}
+  .nb-box-body p{margin:0 0 4px;}
+  .nb-box-tools{position:absolute; top:10px; right:12px; display:none; gap:2px;}
+  .nb-box:hover .nb-box-tools{display:flex;}
+  .nb-box-tools button{
+    border:none; background:rgba(255,255,255,.6); cursor:pointer; font-size:12px;
+    padding:3px 6px; border-radius:5px; color:var(--text-soft);
+  }
+  .nb-box-tools button:hover{background:#fff; color:var(--text);}
+  .nb-box-tools .nb-box-del:hover{color:#c14c4c;}
+  #boxPicker{
+    position:fixed; z-index:85; display:none; background:#fff;
+    border:1px solid var(--line); border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.16);
+    padding:10px; grid-template-columns:repeat(5,30px); gap:7px;
+  }
+  #boxPicker.open{display:grid;}
+  #boxPicker .sw{width:30px; height:30px; border-radius:7px; cursor:pointer; border:1px solid rgba(0,0,0,.1);}
+  #boxPicker .sw:hover{outline:2px solid var(--accent);}
+  /* ---------- Numbered section box (헤더 박스) ---------- */
+  .nb-secbox{
+    border:1px solid #e6e4ec; border-radius:14px; overflow:hidden; background:#fff;
+    margin:18px 0; position:relative; box-shadow:0 1px 4px rgba(0,0,0,.04);
+  }
+  .nb-secbox-head{
+    background:var(--sb,#5b3d8f); color:var(--stc,#fff);
+    display:flex; align-items:center; gap:13px; padding:13px 20px;
+  }
+  .nb-secbox-num{
+    font-family:Georgia,'Times New Roman',serif; font-weight:700; font-size:1.15em;
+    outline:none; min-width:14px;
+  }
+  .nb-secbox-title{
+    font-size:.97em; font-weight:500; outline:none; flex:1; opacity:.96;
+  }
+  .nb-secbox-title:empty::before{content:"제목 입력…"; opacity:.5;}
+  .nb-secbox-body{padding:18px 22px; line-height:1.8; outline:none;}
+  .nb-secbox-body p{margin:0 0 10px;}
+  .nb-secbox .nb-box-tools{top:11px; right:14px;}
+  .nb-secbox .nb-box-tools button{background:rgba(255,255,255,.22); color:var(--stc,#fff);}
+  .nb-secbox .nb-box-tools button:hover{background:rgba(255,255,255,.4);}
+  /* ---------- Symbol picker (custom bullets) ---------- */
+  #symPicker{
+    position:fixed; z-index:85; display:none; background:#fff; width:308px;
+    border:1px solid var(--line); border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.16);
+    padding:10px 12px; max-height:60vh; overflow-y:auto;
+  }
+  #symPicker.open{display:block;}
+  .sym-label{font-size:10.5px; color:var(--text-soft); text-transform:uppercase; letter-spacing:.05em; margin:8px 0 4px;}
+  .sym-label:first-child{margin-top:0;}
+  .sym-grid{display:grid; grid-template-columns:repeat(8,34px); gap:2px;}
+  .sym-grid button{
+    border:none; background:none; font-size:16px; width:34px; height:32px;
+    border-radius:6px; cursor:pointer; color:var(--text);
+    font-family:inherit;
+  }
+  .sym-grid button:hover{background:var(--hover);}
+  #editor blockquote, #editor .nb-quote{border-left:3px solid #c9c7c2; margin:8px 0; padding:2px 14px; color:var(--text-soft);}
+  #editor hr{border:none; border-top:1px solid #d9d7d2; margin:20px 0;}
+  .nb-table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px;}
+  .nb-table th,.nb-table td{border:1px solid var(--line); padding:7px 10px; text-align:left; min-width:34px; vertical-align:top; overflow-wrap:anywhere;}
+  .nb-table th{background:var(--thbg, var(--sidebar)); color:var(--thc, inherit); font-weight:600;}
+  #tableMenu{
+    position:fixed; z-index:70; display:none; gap:2px; background:#fff;
+    border:1px solid var(--line); border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.14); padding:4px;
+  }
+  #tableMenu.open{display:flex;}
+  #tableMenu button{border:none; background:none; font-size:12px; padding:4px 9px; border-radius:5px; cursor:pointer; color:var(--text); white-space:nowrap;}
+  #tableMenu button:hover{background:var(--hover);}
+  #tableMenu button.danger:hover{background:#fdecec; color:#c14c4c;}
+
+  /* ---------- Custom color picker (rainbow + eyedropper) ---------- */
+  #colorPicker{
+    position:fixed; z-index:90; display:none; width:240px; background:#fff;
+    border:1px solid var(--line); border-radius:10px; box-shadow:0 10px 32px rgba(0,0,0,.18); padding:12px;
+  }
+  #colorPicker.open{display:block;}
+  #cpSV{width:216px; height:140px; border-radius:8px; cursor:crosshair; display:block; touch-action:none;}
+  #cpHue{
+    width:100%; margin:10px 0 8px; -webkit-appearance:none; appearance:none; height:12px; border-radius:6px;
+    background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); outline:none; cursor:pointer;
+  }
+  #cpHue::-webkit-slider-thumb{
+    -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:#fff; border:2px solid #888; box-shadow:0 1px 4px rgba(0,0,0,.3); cursor:pointer;
+  }
+  .cp-row{display:flex; align-items:center; gap:6px;}
+  #cpPreview{width:28px; height:28px; border-radius:6px; border:1px solid var(--line); flex:none;}
+  #cpHex{
+    flex:1; min-width:0; border:1px solid var(--line); border-radius:6px; padding:5px 8px;
+    font-size:13px; font-family:monospace; outline:none;
+  }
+  #cpHex:focus{border-color:var(--accent);}
+  #cpEye, #cpOk{
+    border:1px solid var(--line); background:#fff; border-radius:6px; padding:5px 9px;
+    font-size:13px; cursor:pointer; flex:none;
+  }
+  #cpEye:hover, #cpOk:hover{background:var(--hover);}
+  #cpOk{background:var(--text); color:#fff; border-color:var(--text);}
+  #cpOk:hover{opacity:.85; background:var(--text);}
+  .nb-toggle{margin:10px 0;}
+  .nb-toggle-head{display:flex; align-items:center; gap:6px;}
+  .nb-toggle-btn{border:none; background:none; cursor:pointer; font-size:12px; color:var(--text-soft); transition:transform .15s; padding:2px 4px;}
+  .nb-toggle.open .nb-toggle-btn{transform:rotate(90deg);}
+  .nb-toggle-title{font-weight:600; outline:none; flex:1;}
+  .nb-toggle-del{border:none; background:none; cursor:pointer; font-size:13px; color:var(--text-soft); padding:2px 5px; border-radius:4px; display:none;}
+  .nb-toggle:hover .nb-toggle-del{display:inline;}
+  .nb-toggle-del:hover{color:#c14c4c; background:#fdecec;}
+  .nb-toggle-body{display:none; margin:6px 0 6px 22px; padding-left:12px; border-left:2px solid var(--line);}
+  .nb-toggle.open .nb-toggle-body{display:block;}
+  .note-row.drag-top{box-shadow:0 -2px 0 var(--accent);}
+  .note-row.drag-bottom{box-shadow:0 2px 0 var(--accent);}
+  .note-row.dragging{opacity:.45;}
+  .course-row.drag-over{background:var(--active); outline:1px dashed var(--accent);}
+
+  /* ---------- Lock screen ---------- */
+  #lockScreen{
+    position:fixed; inset:0; z-index:999; background:var(--bg);
+    display:none; align-items:center; justify-content:center;
+  }
+  #lockScreen.show{display:flex;}
+  .lock-card{
+    width:320px; max-width:88vw; text-align:center; padding:36px 28px;
+    border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,.08);
+  }
+  .lock-card .lock-emoji{font-size:38px; margin-bottom:10px;}
+  .lock-card h2{margin:0 0 4px; font-size:18px;}
+  .lock-card p{margin:0 0 18px; font-size:12.5px; color:var(--text-soft);}
+  #lockInput{
+    width:100%; border:1px solid var(--line); border-radius:8px; padding:10px 12px;
+    font-size:15px; outline:none; text-align:center; letter-spacing:.15em;
+  }
+  #lockInput:focus{border-color:var(--accent);}
+  #lockGo{
+    width:100%; margin-top:10px; padding:10px; border:none; border-radius:8px;
+    background:var(--text); color:#fff; font-size:14px; cursor:pointer;
+  }
+  #lockGo:hover{opacity:.88;}
+  #lockError{color:#c14c4c; font-size:12.5px; min-height:18px; margin-top:10px;}
+  .lock-shake{animation:shake .35s;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+
+  /* ---------- Key points callout ---------- */
+  #keyPoints{
+    display:none; background:var(--callout); border:1px solid var(--callout-line);
+    border-radius:8px; padding:14px 16px; margin:8px 0 26px;
+  }
+  #keyPoints.show{display:block;}
+  #keyPoints .kp-head{display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; margin-bottom:8px;}
+  #keyPoints ul{margin:0; padding-left:20px; font-size:14.5px; line-height:1.65;}
+  #keyPoints li{margin-bottom:5px;}
+  #keyPoints .kp-close{margin-left:auto;}
+
+  /* ---------- Dictionary panel ---------- */
+  #dictPanel{
+    position:fixed; top:56px; right:20px; width:330px; max-height:70vh; overflow-y:auto;
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    box-shadow:0 10px 36px rgba(0,0,0,.15); padding:16px; display:none; z-index:50;
+  }
+  #dictPanel.open{display:block;}
+  #dictPanel h3{margin:0 0 10px; font-size:15px; display:flex; align-items:center; gap:8px;}
+  #dictRow{display:flex; gap:6px;}
+  #dictInput{
+    flex:1; border:1px solid var(--line); border-radius:6px; padding:7px 10px; font-size:14px;
+    outline:none; font-family:inherit;
+  }
+  #dictInput:focus{border-color:var(--accent);}
+  #dictResult{margin-top:12px; font-size:14px; line-height:1.6;}
+  #dictResult .word{font-size:18px; font-weight:700;}
+  #dictResult .kr{font-size:14px; color:var(--accent); margin:8px 0 2px;}
+  #dictResult .label{font-size:11px; color:var(--text-soft); text-transform:uppercase; letter-spacing:.04em; margin-top:10px;}
+  .hint{font-size:12px; color:var(--text-soft); margin-top:8px;}
+  .spinner{display:inline-block; width:14px; height:14px; border:2px solid var(--line); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  #emptyState{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:var(--text-soft); gap:10px; font-size:14px;
+  }
+  #emptyState .big{font-size:40px;}
+
+  @media (max-width:720px){
+    #sidebar{width:200px; min-width:200px;}
+    #editorInner{padding:24px 18px 100px;}
+    #dictPanel{right:8px; left:8px; width:auto;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important; transition:none!important;} }
+
+  /* ---------- PDF export (print) ---------- */
+  @media print{
+    #sidebar, #topbar, #toolbar, #dictPanel, #coverBtn, #coverPicker,
+    .row-btn, #kpClose, #emptyState, .pdf-controls, .pdf-close, #lockScreen, #tableMenu,
+    #exportBtn, #importBtn, #lockBtn, #colorPicker{display:none !important;}
+    .nb-toggle-body{display:block !important;}
+    .nb-toggle-btn{visibility:hidden;}
+    body{display:block; overflow:visible; background:#fff;}
+    #main{height:auto; display:block;}
+    #editorWrap{overflow:visible;}
+    #editorInner{max-width:100%; padding:28px 8px;}
+    #cover{height:150px; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    #keyPoints{-webkit-print-color-adjust:exact; print-color-adjust:exact; break-inside:avoid;}
+    #editor h3{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    .nb-box{-webkit-print-color-adjust:exact; print-color-adjust:exact; break-inside:avoid;}
+    .nb-secbox{-webkit-print-color-adjust:exact; print-color-adjust:exact; break-inside:avoid;}
+    .nb-box-tools, #boxPicker, #symPicker{display:none !important;}
+    #editor{min-height:0;}
+    #noteTitle{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-emoji">📚🔒</div>
+    <h2>My Law Notebook</h2>
+    <p>Enter your password to open</p>
+    <input id="lockInput" type="password" autocomplete="off" />
+    <button id="lockGo">Unlock</button>
+    <div id="lockError"></div>
+  </div>
+</div>
+
+<aside id="sidebar">
+  <header>
+    <span class="logo">📚</span>
+    <div style="min-width:0;">
+      <div class="title" id="sbTitle" contenteditable="true" spellcheck="false">My Law Notebook</div>
+      <div class="subtitle" id="sbSubtitle" contenteditable="true" spellcheck="false">University of St. Thomas · 1L</div>
+    </div>
+  </header>
+  <div id="courseList"></div>
+  <button id="addCourse">＋ Add a course</button>
+</aside>
+
+<main id="main">
+  <div id="topbar">
+    <button class="icon-btn" id="kpBtn" title="Generate key points to memorize">✨ Key points</button>
+    <button class="icon-btn" id="dictBtn" title="Quick word reference">📖</button>
+    <button class="icon-btn" id="pdfBtn" title="Export this note as a PDF">⬇ PDF</button>
+    <button class="icon-btn" id="exportBtn" title="Export all notes as a backup file">💾 Backup</button>
+    <button class="icon-btn" id="importBtn" title="Restore notes from a backup file">📂 Restore</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+    <button class="icon-btn" id="lockBtn" title="Set or change the notebook password">🔒</button>
+    <span id="saveStatus"></span>
+  </div>
+
+  <div id="toolbar">
+    <select class="tb-select" id="fontFamily" title="Font">
+      <option value="">Font</option>
+      <option value="-apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Default</option>
+      <option value="Georgia, 'Times New Roman', serif">Serif</option>
+      <option value="'Courier New', monospace">Mono</option>
+      <option value="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">한글 Gothic</option>
+      <option value="'Nanum Myeongjo','Batang',serif">한글 Myeongjo</option>
+    </select>
+    <span class="fs-ctrl">
+      <button class="tb-btn" id="fsMinus" title="Smaller">−</button>
+      <input id="fsInput" type="number" min="8" max="96" value="16" title="Font size (px) — type any number">
+      <button class="tb-btn" id="fsPlus" title="Larger">＋</button>
+    </span>
+    <span class="tb-sep"></span>
+    <button class="tb-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+    <button class="tb-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+    <button class="tb-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+    <button class="tb-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+    <span class="tb-sep"></span>
+    <div class="swatch-wrap">
+      <button class="tb-btn" id="textColorBtn" title="Text color" style="color:#c14343;">A</button>
+      <div class="palette" id="textPalette"></div>
+    </div>
+    <div class="swatch-wrap">
+      <button class="tb-btn" id="hlBtn" title="Highlighter" style="background:#fdecc8;border-radius:4px;">🖍</button>
+      <div class="palette" id="hlPalette"></div>
+    </div>
+    <span class="tb-sep"></span>
+    <button class="tb-btn" data-cmd="insertUnorderedList" title="Bulleted list">•≡</button>
+    <button class="tb-btn" data-cmd="insertOrderedList" title="Numbered list">1≡</button>
+    <button class="tb-btn" id="indentBtn" title="Indent (Tab)">⇥</button>
+    <button class="tb-btn" id="outdentBtn" title="Outdent (Shift+Tab)">⇤</button>
+    <button class="tb-btn" id="symBtn" title="기호 불릿 (①→★ 등)">※</button>
+    <button class="tb-btn" data-block="h2" title="Subtitle">H₁</button>
+    <button class="tb-btn" data-block="h3" title="Smaller subtitle">H₂</button>
+    <button class="tb-btn" id="quoteBtn" title="Quote">❝</button>
+    <button class="tb-btn" id="boxBtn" title="색상 박스 넣기 (callout box)">▣</button>
+    <button class="tb-btn" id="secBtn" title="번호 섹션 박스 (헤더 있는 박스)">❶</button>
+    <span class="tb-sep"></span>
+    <button class="tb-btn" data-cmd="removeFormat" title="Clear formatting">⌫✎</button>
+    <span class="tb-sep"></span>
+    <button class="tb-btn" id="insertPdfBtn" title="Embed a PDF in this note">📄 Embed PDF</button>
+    <button class="tb-btn" id="dividerBtn" title="Insert divider line">──</button>
+    <button class="tb-btn" id="tableBtn" title="Insert chart (table)">⊞</button>
+    <button class="tb-btn" id="toggleBtn" title="Insert toggle (collapsible section)">▸≡</button>
+  </div>
+
+  <div id="editorWrap">
+    <div id="cover" class="cv-legal">
+      <div class="cover-clip"></div>
+      <div class="cover-script" id="coverText">My Law Notebook</div>
+      <button class="icon-btn" id="coverBtn">🎨 Change cover</button>
+      <div id="coverPicker"></div>
+    </div>
+    <div id="editorInner">
+      <input id="noteTitle" placeholder="Untitled note" />
+      <div id="noteMeta"></div>
+      <div id="keyPoints">
+        <div class="kp-head">📌 Key points to memorize
+          <button class="row-btn kp-close" id="kpClose" style="display:inline-block;">✕</button>
+        </div>
+        <ul id="kpList"></ul>
+      </div>
+      <div id="editor" contenteditable="true"></div>
+    </div>
+  </div>
+
+  <div id="emptyState" style="display:none;">
+    <div class="big">🗂️</div>
+    <div>Select a note on the left, or add a course to get started.</div>
+  </div>
+</main>
+
+<div id="dictPanel">
+  <h3>📖 Quick reference
+    <button class="row-btn" id="dictClose" style="display:inline-block;margin-left:auto;">✕</button>
+  </h3>
+  <div id="dictRow">
+    <input id="dictInput" placeholder="Type a word…" />
+    <button class="icon-btn" id="dictGo">Search</button>
+  </div>
+  <div class="hint">Tip: select a word in your note first, then click 📖 — it fills in automatically.</div>
+  <div id="dictResult"></div>
+</div>
+
+<div id="symPicker"></div>
+
+<div id="boxPicker"></div>
+
+<div id="colorPicker">
+  <canvas id="cpSV" width="216" height="140"></canvas>
+  <input type="range" id="cpHue" min="0" max="360" value="30">
+  <div class="cp-row">
+    <div id="cpPreview"></div>
+    <input id="cpHex" maxlength="7" spellcheck="false" value="#d9730d">
+    <button id="cpEye" type="button" title="스포이드 — 화면의 아무 색이나 집어오기">💧</button>
+    <button id="cpOk" type="button">적용</button>
+  </div>
+</div>
+
+<div id="tableMenu">
+  <button data-t="rowAdd" title="Add a row below the clicked cell">＋ Row</button>
+  <button data-t="colAdd" title="Add a column to the right of the clicked cell">＋ Col</button>
+  <button data-t="rowDel" title="Delete the clicked row">－ Row</button>
+  <button data-t="colDel" title="Delete the clicked column">－ Col</button>
+  <button data-t="thColor" title="Header color">🎨 Header</button>
+  <button data-t="tblDel" class="danger" title="Delete the whole chart">🗑 Chart</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+<script>
+/* ============ State & storage ============ */
+const STORE_KEY = "law-notebook-v1";
+let data = { courses: [], activeCourse: null, activeNote: null };
+let memoryOnly = false;
+let saveTimer = null;
+
+const $ = (id) => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+/* ============ Storage adapter ============ */
+/* Tries the built-in artifact storage first; if the file is opened as a
+   normal HTML file in a browser, it falls back to the browser's localStorage.
+   Either way, your notes persist. */
+const store = {
+  backend: null,
+  init() {
+    if (typeof window.storage !== "undefined" && window.storage && typeof window.storage.get === "function") {
+      this.backend = "artifact";
+    } else {
+      try {
+        localStorage.setItem("__nb_test", "1");
+        localStorage.removeItem("__nb_test");
+        this.backend = "local";
+      } catch (e) { this.backend = null; }
+    }
+  },
+  async get(key) {
+    if (this.backend === "artifact") {
+      try { const r = await window.storage.get(key); return r ? r.value : null; }
+      catch (e) { return null; } // key doesn't exist yet
+    }
+    if (this.backend === "local") return localStorage.getItem(key);
+    return null;
+  },
+  async set(key, value) {
+    if (this.backend === "artifact") {
+      const r = await window.storage.set(key, value);
+      if (!r) throw new Error("save failed");
+      return;
+    }
+    if (this.backend === "local") { localStorage.setItem(key, value); return; }
+    throw new Error("no storage");
+  }
+};
+
+async function loadData() {
+  store.init();
+  if (!store.backend) {
+    memoryOnly = true;
+    setStatus("⚠ This browser blocks storage — notes won't persist");
+  }
+  try {
+    const saved = await store.get(STORE_KEY);
+    if (saved) data = JSON.parse(saved);
+  } catch (e) { /* corrupted or first run — start fresh */ }
+  try {
+    const lh = await store.get("nb-lock");
+    if (lh) { lockHash = lh; $("lockScreen").classList.add("show"); setTimeout(() => $("lockInput").focus(), 50); }
+  } catch (e) {}
+  if (data.courses.length === 0) seedExample();
+  data.meta = data.meta || { title: "My Law Notebook", subtitle: "University of St. Thomas · 1L" };
+  $("sbTitle").textContent = data.meta.title;
+  $("sbSubtitle").textContent = data.meta.subtitle;
+  render();
+  if (store.backend) setStatus("Ready — auto-save is on");
+}
+
+function seedExample() {
+  const c = { id: uid(), name: "Contracts", open: true, notes: [] };
+  const n = {
+    id: uid(), title: "Welcome — how to use this notebook",
+    html: "<p>This is your notebook! A few quick things:</p><ul><li><b>Add a course</b> in the sidebar, then add notes inside it — one note per class or reading.</li><li><b>Embed PDFs in your notes</b> — click <b>📄 Embed PDF</b> in the toolbar to insert a reading right into the note. Flip through pages with the arrows.</li><li>Everything <b>auto-saves</b> as you type (watch the top-right corner).</li><li>Use the toolbar for <span style='color:#337ea9'>colors</span>, <span style='background-color:#fdecc8'>highlights</span>, fonts, and sizes.</li><li>Hover over the cover and click <b>🎨 Change cover</b> to pick a different look for each course.</li><li>Click <b>✨ Key points</b> and I'll read your note and pull out what you should memorize.</li><li>Click <b>📖</b> for a quick reference on any word.</li></ul>",
+    keyPoints: [], updated: Date.now()
+  };
+  c.notes.push(n);
+  data.courses.push(c);
+  data.activeCourse = c.id; data.activeNote = n.id;
+}
+
+function setStatus(msg) { $("saveStatus").textContent = msg; }
+
+function scheduleSave() {
+  if (memoryOnly) return;
+  setStatus("Saving…");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 700);
+}
+
+async function saveNow() {
+  try {
+    await store.set(STORE_KEY, JSON.stringify(data));
+    setStatus("Saved ✓");
+  } catch (e) {
+    setStatus("⚠ Save failed — if you just embedded a PDF, the notebook may be over its storage limit (remove a PDF)");
+    setTimeout(saveNow, 3000);
+  }
+}
+
+/* ============ Helpers ============ */
+function activeCourse() { return data.courses.find(c => c.id === data.activeCourse); }
+function activeNote() {
+  const c = activeCourse();
+  return c ? c.notes.find(n => n.id === data.activeNote) : null;
+}
+
+/* ============ Rendering ============ */
+function render() {
+  renderSidebar();
+  renderNote();
+}
+
+function renderSidebar() {
+  const list = $("courseList");
+  list.innerHTML = "";
+  data.courses.forEach(course => {
+    const div = document.createElement("div");
+    div.className = "course" + (course.open ? " open" : "");
+
+    const row = document.createElement("div");
+    row.className = "course-row";
+    row.innerHTML = `<span class="chev">▶</span><span class="cname"></span>`;
+    row.querySelector(".cname").textContent = course.name;
+    row.title = course.name;
+
+    const up   = btn("▲", "Move up", (e) => { e.stopPropagation(); moveCourse(course, -1); });
+    const down = btn("▼", "Move down", (e) => { e.stopPropagation(); moveCourse(course, 1); });
+    const addN = btn("＋", "Add note", (e) => { e.stopPropagation(); addNote(course); });
+    const ren  = btn("✎", "Rename course", (e) => { e.stopPropagation(); renameCourse(course); });
+    const del  = btn("🗑", "Delete course", (e) => { e.stopPropagation(); deleteCourse(course); });
+    row.append(up, down, addN, ren, del);
+    row.onclick = () => { course.open = !course.open; renderSidebar(); scheduleSave(); };
+    row.addEventListener("dragover", (e) => {
+      if (!dragData) return;
+      e.preventDefault();
+      row.classList.add("drag-over");
+    });
+    row.addEventListener("dragleave", () => row.classList.remove("drag-over"));
+    row.addEventListener("drop", (e) => {
+      e.preventDefault();
+      row.classList.remove("drag-over");
+      if (!dragData) return;
+      moveNoteToCourse(course);
+    });
+    div.appendChild(row);
+
+    const notesBox = document.createElement("div");
+    notesBox.className = "notes";
+    course.notes.forEach(note => {
+      const nr = document.createElement("div");
+      nr.className = "note-row" + (note.id === data.activeNote ? " active" : "");
+      nr.innerHTML = `<span>📄</span><span class="nname"></span>`;
+      nr.querySelector(".nname").textContent = note.title || "Untitled";
+      nr.title = note.title || "Untitled";
+      const nup = btn("▲", "Move up", (e) => { e.stopPropagation(); moveNote(course, note, -1); });
+      const ndn = btn("▼", "Move down", (e) => { e.stopPropagation(); moveNote(course, note, 1); });
+      const dn = btn("🗑", "Delete note", (e) => { e.stopPropagation(); deleteNote(course, note); });
+      nr.append(nup, ndn, dn);
+      nr.onclick = () => selectNote(course.id, note.id);
+      /* drag & drop reordering */
+      nr.draggable = true;
+      nr.addEventListener("dragstart", (e) => {
+        dragData = { cid: course.id, nid: note.id };
+        nr.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+      nr.addEventListener("dragend", clearDragMarks);
+      nr.addEventListener("dragover", (e) => {
+        if (!dragData || dragData.nid === note.id) return;
+        e.preventDefault();
+        const r = nr.getBoundingClientRect();
+        const top = (e.clientY - r.top) < r.height / 2;
+        nr.classList.toggle("drag-top", top);
+        nr.classList.toggle("drag-bottom", !top);
+      });
+      nr.addEventListener("dragleave", () => nr.classList.remove("drag-top", "drag-bottom"));
+      nr.addEventListener("drop", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (!dragData || dragData.nid === note.id) return;
+        const r = nr.getBoundingClientRect();
+        dropNote(course, note, (e.clientY - r.top) < r.height / 2);
+      });
+      notesBox.appendChild(nr);
+    });
+    div.appendChild(notesBox);
+    
+    list.appendChild(div);
+  });
+}
+
+function btn(label, title, fn) {
+  const b = document.createElement("button");
+  b.className = "row-btn"; b.textContent = label; b.title = title; b.onclick = fn;
+  return b;
+}
+
+function renderNote() {
+  const note = activeNote();
+  const has = !!note;
+  $("editorWrap").style.display = has ? "" : "none";
+  $("toolbar").style.display = has ? "" : "none";
+  $("emptyState").style.display = has ? "none" : "flex";
+  $("kpBtn").disabled = !has;
+  $("pdfBtn").disabled = !has;
+  if (!has) return;
+  const c = activeCourse();
+  $("coverText").textContent = c ? c.name : "My Law Notebook";
+  applyCover(c);
+  $("noteTitle").value = note.title || "";
+  $("editor").innerHTML = note.html || "";
+  cleanupStuckBlocks();
+  initAllEmbeds();
+  $("noteMeta").textContent = "Last edited " + new Date(note.updated).toLocaleString();
+  renderKeyPoints(note);
+}
+
+function renderKeyPoints(note) {
+  const box = $("keyPoints");
+  if (note.keyPoints && note.keyPoints.length) {
+    $("kpList").innerHTML = "";
+    note.keyPoints.forEach(p => {
+      const li = document.createElement("li");
+      li.textContent = p;
+      $("kpList").appendChild(li);
+    });
+    box.classList.add("show");
+  } else {
+    box.classList.remove("show");
+  }
+}
+
+/* ============ CRUD ============ */
+function addCourse() {
+  const name = prompt("Course name (e.g., Contracts, Torts, Civil Procedure):");
+  if (!name) return;
+  const c = { id: uid(), name: name.trim(), open: true, notes: [] };
+  data.courses.push(c);
+  renderSidebar(); scheduleSave();
+}
+function renameCourse(course) {
+  const name = prompt("Rename course:", course.name);
+  if (!name) return;
+  course.name = name.trim(); renderSidebar(); scheduleSave();
+}
+function deleteCourse(course) {
+  if (!confirm(`Delete "${course.name}" and all its notes? This cannot be undone.`)) return;
+  data.courses = data.courses.filter(c => c.id !== course.id);
+  if (data.activeCourse === course.id) { data.activeCourse = null; data.activeNote = null; }
+  render(); scheduleSave();
+}
+function addNote(course) {
+  const n = { id: uid(), title: "", html: "", keyPoints: [], updated: Date.now() };
+  course.notes.unshift(n);
+  course.open = true;
+  data.activeCourse = course.id; data.activeNote = n.id;
+  render(); scheduleSave();
+  $("noteTitle").focus();
+}
+function deleteNote(course, note) {
+  if (!confirm(`Delete note "${note.title || "Untitled"}"?`)) return;
+  course.notes = course.notes.filter(n => n.id !== note.id);
+  if (data.activeNote === note.id) data.activeNote = null;
+  render(); scheduleSave();
+}
+function selectNote(cid, nid) {
+  data.activeCourse = cid; data.activeNote = nid;
+  render(); scheduleSave();
+}
+function moveCourse(course, dir) {
+  const i = data.courses.indexOf(course);
+  const j = i + dir;
+  if (j < 0 || j >= data.courses.length) return;
+  [data.courses[i], data.courses[j]] = [data.courses[j], data.courses[i]];
+  renderSidebar(); scheduleSave();
+}
+function moveNote(course, note, dir) {
+  const i = course.notes.indexOf(note);
+  const j = i + dir;
+  if (j < 0 || j >= course.notes.length) return;
+  [course.notes[i], course.notes[j]] = [course.notes[j], course.notes[i]];
+  renderSidebar(); scheduleSave();
+}
+
+/* ---- drag & drop ---- */
+let dragData = null;
+function clearDragMarks() {
+  dragData = null;
+  document.querySelectorAll(".drag-top,.drag-bottom,.dragging,.drag-over")
+    .forEach(el => el.classList.remove("drag-top", "drag-bottom", "dragging", "drag-over"));
+}
+function findDragSource() {
+  if (!dragData) return null;
+  const c = data.courses.find(x => x.id === dragData.cid);
+  if (!c) return null;
+  const i = c.notes.findIndex(n => n.id === dragData.nid);
+  if (i === -1) return null;
+  return { course: c, index: i, note: c.notes[i] };
+}
+function dropNote(targetCourse, targetNote, before) {
+  const src = findDragSource();
+  clearDragMarks();
+  if (!src) return;
+  src.course.notes.splice(src.index, 1);
+  let ti = targetCourse.notes.indexOf(targetNote);
+  if (ti === -1) ti = targetCourse.notes.length; else if (!before) ti++;
+  targetCourse.notes.splice(ti, 0, src.note);
+  renderSidebar(); scheduleSave();
+}
+function moveNoteToCourse(targetCourse) {
+  const src = findDragSource();
+  clearDragMarks();
+  if (!src || src.course.id === targetCourse.id) { renderSidebar(); return; }
+  src.course.notes.splice(src.index, 1);
+  targetCourse.notes.push(src.note);
+  targetCourse.open = true;
+  renderSidebar(); scheduleSave();
+}
+
+/* ============ Editing / autosave ============ */
+$("sbTitle").addEventListener("input", () => {
+  data.meta.title = $("sbTitle").textContent.trim(); scheduleSave();
+});
+$("sbSubtitle").addEventListener("input", () => {
+  data.meta.subtitle = $("sbSubtitle").textContent.trim(); scheduleSave();
+});
+[$("sbTitle"), $("sbSubtitle")].forEach(el => {
+  el.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); el.blur(); } });
+});
+
+$("noteTitle").addEventListener("input", () => {
+  const n = activeNote(); if (!n) return;
+  n.title = $("noteTitle").value; n.updated = Date.now();
+  renderSidebar(); scheduleSave();
+});
+$("editor").addEventListener("input", () => {
+  const n = activeNote(); if (!n) return;
+  n.html = $("editor").innerHTML; n.updated = Date.now();
+  scheduleSave();
+});
+
+/* ============ PDF export ============ */
+$("pdfBtn").addEventListener("click", () => {
+  const n = activeNote(); if (!n) return;
+  const c = activeCourse();
+  const oldTitle = document.title;
+  document.title = (c ? c.name + " — " : "") + (n.title || "Untitled"); // becomes the PDF filename
+  window.print(); // choose "Save as PDF" as the destination
+  document.title = oldTitle;
+});
+
+/* ============ Cover picker ============ */
+const COVERS = [
+  ["cv-legal", "Legal pad"], ["cv-ruled", "Ruled paper"], ["cv-grid", "Grid"], ["cv-kraft", "Kraft"],
+  ["cv-navy", "Navy leather"], ["cv-pink", "Blush"], ["cv-mint", "Mint"]
+];
+const COVER_QUICK_COLORS = ["#f6d55c","#ed9b40","#e5646a","#d46ba3","#9b5de5","#5b7fd4","#20639b","#3caea3","#6a994e","#8d6e63","#5c5c5c","#2b2b2b"];
+
+function shadeColor(hex, pct) {
+  const n = parseInt(hex.slice(1), 16);
+  let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  r = Math.min(255, Math.max(0, Math.round(r + (pct / 100) * 255)));
+  g = Math.min(255, Math.max(0, Math.round(g + (pct / 100) * 255)));
+  b = Math.min(255, Math.max(0, Math.round(b + (pct / 100) * 255)));
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+function isLight(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6;
+}
+
+function applyCover(course) {
+  const cover = $("cover");
+  const script = $("coverText");
+  const val = (course && course.cover) || "cv-legal";
+  if (val.startsWith("#")) {
+    cover.className = "cv-custom";
+    cover.style.background = `linear-gradient(135deg, ${shadeColor(val, 8)}, ${val} 55%, ${shadeColor(val, -10)})`;
+    script.style.color = isLight(val) ? "rgba(45,42,30,.8)" : "rgba(255,255,255,.88)";
+    script.style.textShadow = "none";
+  } else {
+    cover.className = val;
+    cover.style.background = "";
+    script.style.color = "";
+    script.style.textShadow = "";
+  }
+}
+
+function setCover(value) {
+  const c = activeCourse(); if (!c) return;
+  c.cover = value;
+  applyCover(c);
+  scheduleSave();
+}
+
+(function buildCoverPicker() {
+  const p = $("coverPicker");
+
+  const grid = document.createElement("div");
+  grid.className = "cp-grid";
+  COVERS.forEach(([cls, label]) => {
+    const t = document.createElement("div");
+    t.className = "cv-thumb";
+    t.innerHTML = `<div class="prev ${cls}"></div><div class="lbl">${label}</div>`;
+    t.onclick = () => { setCover(cls); p.classList.remove("open"); };
+    grid.appendChild(t);
+  });
+  p.appendChild(grid);
+
+  const custom = document.createElement("div");
+  custom.className = "cp-custom";
+  custom.innerHTML = `<div class="cp-label">Solid color</div>`;
+  const sws = document.createElement("div");
+  sws.className = "cp-swatches";
+  COVER_QUICK_COLORS.forEach(hex => {
+    const s = document.createElement("div");
+    s.className = "sw"; s.style.background = hex; s.title = hex;
+    s.onclick = () => { setCover(hex); p.classList.remove("open"); };
+    sws.appendChild(s);
+  });
+  const rainbow = document.createElement("div");
+  rainbow.className = "sw"; rainbow.title = "원하는 색 직접 고르기 (스포이드 포함)";
+  rainbow.style.background = "conic-gradient(#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#9c27b0,#f44336)";
+  rainbow.onclick = () => {
+    p.classList.remove("open");
+    const cur = (activeCourse() && activeCourse().cover && activeCourse().cover.startsWith("#")) ? activeCourse().cover : "#f6d55c";
+    openColorPicker(rainbow, cur, (hex) => setCover(hex));
+  };
+  sws.appendChild(rainbow);
+  custom.appendChild(sws);
+  p.appendChild(custom);
+})();
+$("coverBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const p = $("coverPicker");
+  if (p.classList.contains("open")) { p.classList.remove("open"); return; }
+  const r = $("coverBtn").getBoundingClientRect();
+  p.style.top = Math.min(r.bottom + 8, window.innerHeight - 100) + "px";
+  p.style.right = Math.max(12, window.innerWidth - r.right) + "px";
+  p.classList.add("open");
+});
+document.addEventListener("click", e => {
+  if (!e.target.closest("#coverPicker") && !e.target.closest("#coverBtn"))
+    $("coverPicker").classList.remove("open");
+});
+
+/* ============ PDF embedding ============ */
+const pdfViewers = new WeakMap(); // container element -> {pdf, page, pages}
+
+function bufToB64(buf) {
+  // chunked — the naive one-shot version crashes on files bigger than ~100KB
+  const u = new Uint8Array(buf);
+  let s = "";
+  const CH = 0x8000;
+  for (let i = 0; i < u.length; i += CH) s += String.fromCharCode.apply(null, u.subarray(i, i + CH));
+  return btoa(s);
+}
+function b64ToArr(b64) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+$("insertPdfBtn").addEventListener("click", () => {
+  if (!activeNote()) return;
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "application/pdf,.pdf";
+  inp.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) { alert("Please select a PDF file."); return; }
+    if (file.size > 3.5 * 1024 * 1024) {
+      alert("This PDF is " + (file.size / 1024 / 1024).toFixed(1) + "MB — too large to store inside a note (limit ~3.5MB, since the whole notebook shares about 5MB of storage).\n\nTip: for big casebooks, embed just the assigned pages (many PDF tools can extract a page range), or keep the big file in your own folder.");
+      return;
+    }
+    try {
+      const buf = await file.arrayBuffer();
+      insertPdfIntoNote(file.name, bufToB64(buf));
+    } catch (err) {
+      alert("Couldn't read that PDF — please try again.");
+    }
+  };
+  inp.click();
+});
+
+function insertPdfIntoNote(filename, b64data) {
+  const container = document.createElement("div");
+  container.className = "embed-pdf";
+  container.contentEditable = "false";
+  container.dataset.pdfName = filename;
+  container.dataset.pdfData = b64data;
+  container.innerHTML = buildEmbedInner(filename);
+  $("editor").appendChild(container);
+  const p = document.createElement("p");
+  p.innerHTML = "<br>"; // so she can keep typing below the PDF
+  $("editor").appendChild(p);
+  syncNote();
+  initEmbed(container);
+}
+
+function buildEmbedInner(filename) {
+  const safe = String(filename).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `
+    <div class="pdf-header">
+      <span class="pdf-name">📄 ${safe}</span>
+      <button class="pdf-close" title="Remove this PDF from the note" type="button">✕</button>
+    </div>
+    <div class="pdf-viewer">Loading PDF…</div>
+    <div class="pdf-controls" style="display:none;">
+      <button class="pdf-prev" type="button">◀</button>
+      <input class="pdf-pagenum" type="number" min="1" value="1">
+      <span class="pdf-count"></span>
+      <button class="pdf-next" type="button">▶</button>
+    </div>`;
+}
+
+async function initEmbed(container) {
+  const b64 = container.dataset.pdfData;
+  const viewer = container.querySelector(".pdf-viewer");
+  if (!b64) { if (viewer) viewer.textContent = "PDF data missing."; return; }
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: b64ToArr(b64) }).promise;
+    pdfViewers.set(container, { pdf, page: 1, pages: pdf.numPages });
+    container.querySelector(".pdf-count").textContent = "/ " + pdf.numPages;
+    if (pdf.numPages > 1) container.querySelector(".pdf-controls").style.display = "flex";
+    await renderEmbedPage(container, 1);
+  } catch (e) {
+    if (viewer) viewer.textContent = "Failed to load PDF. (If you're offline, the PDF viewer needs internet once to load.)";
+  }
+}
+
+async function renderEmbedPage(container, pageNum) {
+  const v = pdfViewers.get(container);
+  if (!v || pageNum < 1 || pageNum > v.pages) return;
+  const page = await v.pdf.getPage(pageNum);
+  const viewerEl = container.querySelector(".pdf-viewer");
+  const targetW = Math.min(viewerEl.clientWidth || 700, 900);
+  const base = page.getViewport({ scale: 1 });
+  const scale = Math.max(1, (targetW / base.width)) * (window.devicePixelRatio > 1 ? 1.5 : 1.2);
+  const viewport = page.getViewport({ scale });
+  const canvas = document.createElement("canvas");
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  canvas.style.width = "100%";
+  await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+  viewerEl.innerHTML = "";
+  viewerEl.appendChild(canvas);
+  viewerEl.style.background = "transparent";
+  v.page = pageNum;
+  container.querySelector(".pdf-pagenum").value = pageNum;
+}
+
+/* Re-render all embedded PDFs in the current note (called after a note loads) */
+function initAllEmbeds() {
+  $("editor").querySelectorAll(".embed-pdf").forEach(container => {
+    container.contentEditable = "false";
+    // rebuild inner UI fresh — saved HTML may contain a stale blank canvas
+    container.innerHTML = buildEmbedInner((container.dataset.pdfName || "document.pdf").replace(/^📄 /, ""));
+    initEmbed(container);
+  });
+}
+
+/* One set of delegated handlers — works for every PDF, including after reload */
+$("editor").addEventListener("click", async (e) => {
+  const container = e.target.closest(".embed-pdf");
+  if (!container) return;
+  if (e.target.closest(".pdf-close")) {
+    container.remove();
+    syncNote();
+    return;
+  }
+  const v = pdfViewers.get(container);
+  if (!v) return;
+  if (e.target.closest(".pdf-prev")) renderEmbedPage(container, v.page - 1);
+  if (e.target.closest(".pdf-next")) renderEmbedPage(container, v.page + 1);
+});
+$("editor").addEventListener("change", (e) => {
+  if (!e.target.classList.contains("pdf-pagenum")) return;
+  const container = e.target.closest(".embed-pdf");
+  const v = container && pdfViewers.get(container);
+  if (!v) return;
+  const num = parseInt(e.target.value, 10);
+  if (num >= 1 && num <= v.pages) renderEmbedPage(container, num);
+  else e.target.value = v.page;
+});
+
+/* ============ Insert blocks: divider, chart, toggle ============ */
+function insertBlock(html) {
+  $("editor").focus();
+  const sel = window.getSelection();
+  const inEditor = sel.rangeCount && $("editor").contains(sel.anchorNode);
+  if (inEditor) document.execCommand("insertHTML", false, html);
+  else $("editor").insertAdjacentHTML("beforeend", html);
+  syncNote();
+}
+
+$("dividerBtn").addEventListener("mousedown", e => e.preventDefault());
+$("dividerBtn").addEventListener("click", () => insertBlock("<hr><p><br></p>"));
+
+$("tableBtn").addEventListener("click", () => {
+  const rows = parseInt(prompt("How many rows? (including header)", "3"), 10);
+  if (!rows || rows < 1) return;
+  const cols = parseInt(prompt("How many columns?", "3"), 10);
+  if (!cols || cols < 1) return;
+  let html = '<table class="nb-table"><tr>';
+  for (let c = 0; c < cols; c++) html += "<th>Header</th>";
+  html += "</tr>";
+  for (let r = 1; r < rows; r++) {
+    html += "<tr>";
+    for (let c = 0; c < cols; c++) html += "<td><br></td>";
+    html += "</tr>";
+  }
+  html += "</table><p><br></p>";
+  insertBlock(html);
+});
+
+$("toggleBtn").addEventListener("click", () => {
+  insertBlock(
+    '<div class="nb-toggle open">' +
+      '<div class="nb-toggle-head" contenteditable="false">' +
+        '<button class="nb-toggle-btn" type="button">▶</button>' +
+        '<span class="nb-toggle-title" contenteditable="true">Toggle title — click to edit</span>' +
+        '<button class="nb-toggle-del" type="button" title="Delete toggle">✕</button>' +
+      '</div>' +
+      '<div class="nb-toggle-body"><p>Write hidden content here…</p></div>' +
+    '</div><p><br></p>'
+  );
+});
+
+/* open/close toggles (delegated so it survives reloads) */
+$("editor").addEventListener("click", (e) => {
+  const tb = e.target.closest(".nb-toggle-btn");
+  if (tb) {
+    tb.closest(".nb-toggle").classList.toggle("open");
+    syncNote();
+    return;
+  }
+  const td = e.target.closest(".nb-toggle-del");
+  if (td) {
+    if (confirm("Delete this toggle and all its content?")) {
+      td.closest(".nb-toggle").remove();
+      syncNote();
+    }
+  }
+});
+
+/* Sanitize pastes: strip icons/scripts that ride along from web pages & chat windows */
+$("editor").addEventListener("paste", (e) => {
+  const html = e.clipboardData && e.clipboardData.getData("text/html");
+  if (!html) return; /* plain-text paste — nothing to clean */
+  e.preventDefault();
+  const t = document.createElement("template");
+  t.innerHTML = html;
+  t.content.querySelectorAll('svg, script, style, link, meta, img[src*="claude" i], img[src*="anthropic" i], img[src=""], img:not([src])')
+    .forEach(el => el.remove());
+  const div = document.createElement("div");
+  div.appendChild(t.content.cloneNode(true));
+  document.execCommand("insertHTML", false, div.innerHTML);
+  syncNote();
+});
+
+/* Remove empty stuck blocks (headings/quotes with nothing in them) whenever a note loads */
+function cleanupStuckBlocks() {
+  let removed = false;
+  /* stray UI graphics that ride along when pasting from chat windows (e.g., the Claude logo) */
+  $("editor").querySelectorAll('svg, script, style, link, meta, img[src*="claude" i], img[src*="anthropic" i], img[src=""], img:not([src])').forEach(el => {
+    el.remove(); removed = true;
+  });
+  $("editor").querySelectorAll("h1, h2, h3, blockquote, .nb-quote, .nb-box").forEach(el => {
+    const text = (el.textContent || "").replace(/\u200B/g, "").trim();
+    const hasContent = text !== "" || el.querySelector("img,canvas,table,.embed-pdf,.nb-toggle");
+    if (!hasContent) { el.remove(); removed = true; }
+  });
+  if (removed) {
+    if (!$("editor").firstChild) $("editor").innerHTML = "<p><br></p>";
+    syncNote();
+  }
+}
+
+/* Backspace inside an empty heading/callout converts it to a normal line (works even at the very top) */
+$("editor").addEventListener("keydown", (e) => {
+  if (e.key !== "Backspace") return;
+  const sel = window.getSelection();
+  if (!sel.rangeCount || !sel.isCollapsed) return;
+  let n = sel.anchorNode;
+  if (n && n.nodeType === 3) n = n.parentElement;
+  if (!n || !$("editor").contains(n)) return;
+  const h = n.closest("h1, h2, h3");
+  if (!h || n.closest(".nb-toggle-title")) return;
+  const empty = (h.textContent || "").replace(/\u200B/g, "").trim() === "";
+  if (!empty) return;
+  e.preventDefault();
+  const p = document.createElement("p");
+  p.innerHTML = "<br>";
+  h.replaceWith(p);
+  const r = document.createRange();
+  r.setStart(p, 0); r.collapse(true);
+  sel.removeAllRanges(); sel.addRange(r);
+  syncNote();
+});
+
+/* ============ Symbol picker (기호 불릿) ============ */
+const SYMBOL_GROUPS = [
+  ["점 · 도형", ["•","◦","‣","⁃","▪","▫","■","□","●","○","◆","◇","▸","▹","–","—"]],
+  ["동그라미 숫자", ["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪","⑫","⑬","⑭","⑮","⓪"]],
+  ["화살표", ["→","➜","➤","▶","↳","↪","⇒","⇨","⟶","↦","⤷","➔"]],
+  ["별 · 강조", ["★","☆","✦","✧","✱","✽","❖","※","✿","♦"]],
+  ["체크 · 표시", ["✓","✔","✗","✘","☐","☑","∴","∵","?","!"]],
+  ["법학 · 문서", ["§","¶","†","‡","№","cf.","e.g.","i.e.","v.","aff'd"]]
+];
+
+(function buildSymPicker() {
+  const p = $("symPicker");
+  SYMBOL_GROUPS.forEach(([label, syms]) => {
+    const l = document.createElement("div");
+    l.className = "sym-label"; l.textContent = label;
+    p.appendChild(l);
+    const g = document.createElement("div");
+    g.className = "sym-grid";
+    syms.forEach(sym => {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = sym;
+      if (sym.length > 2) b.style.fontSize = "11.5px";
+      b.addEventListener("mousedown", e => e.preventDefault()); /* keep caret in the note */
+      b.addEventListener("click", () => {
+        const sel = window.getSelection();
+        if (!sel.rangeCount || !$("editor").contains(sel.anchorNode)) {
+          $("editor").focus();
+          const r = document.createRange();
+          r.selectNodeContents($("editor")); r.collapse(false);
+          sel.removeAllRanges(); sel.addRange(r);
+        }
+        document.execCommand("insertText", false, sym + " ");
+        syncNote();
+        /* picker stays open — click ①, type, Enter, click ② … */
+      });
+      g.appendChild(b);
+    });
+    p.appendChild(g);
+  });
+})();
+
+$("symBtn").addEventListener("mousedown", e => e.preventDefault());
+$("symBtn").addEventListener("click", () => {
+  const p = $("symPicker");
+  if (p.classList.contains("open")) { p.classList.remove("open"); return; }
+  const r = $("symBtn").getBoundingClientRect();
+  p.style.top = Math.min(r.bottom + 8, window.innerHeight - 320) + "px";
+  p.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 324)) + "px";
+  p.classList.add("open");
+});
+document.addEventListener("mousedown", (e) => {
+  if ($("symPicker").classList.contains("open") &&
+      !e.target.closest("#symPicker") && !e.target.closest("#symBtn")) {
+    $("symPicker").classList.remove("open");
+  }
+});
+
+/* ============ Indent / outdent ============ */
+const INDENT_STEP = 28, INDENT_MAX = 280;
+
+function blockOf(n) {
+  if (!n) return null;
+  if (n.nodeType === 3) n = n.parentElement;
+  if (!n || !$("editor").contains(n)) return null;
+  const ind = n.closest && n.closest(".nb-ind");
+  if (ind) return ind;
+  const li = n.closest("li");
+  if (li) return li;
+  let el = n;
+  while (el && el.parentElement) {
+    const p = el.parentElement;
+    if (p === $("editor") ||
+        (p.classList && (p.classList.contains("nb-toggle-body") || p.classList.contains("nb-box-body") || p.classList.contains("nb-quote"))) ||
+        p.tagName === "BLOCKQUOTE") return el;
+    el = p;
+  }
+  return null;
+}
+function selectedBlocks() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return [];
+  const r = sel.getRangeAt(0);
+  const startB = blockOf(r.startContainer), endB = blockOf(r.endContainer);
+  if (!startB) return [];
+  if (!endB || startB === endB) return [startB];
+  const out = [];
+  let cur = startB;
+  while (cur) {
+    out.push(cur);
+    if (cur === endB) break;
+    cur = cur.nextElementSibling;
+    if (out.length > 300) break;
+  }
+  return out.includes(endB) ? out : [startB];
+}
+function isBlockish(el) {
+  return el.nodeType === 1 && /^(DIV|P|H1|H2|H3|H4|UL|OL|TABLE|BLOCKQUOTE|HR)$/.test(el.tagName);
+}
+function canExplode(el) {
+  if (!el || el.nodeType !== 1) return false;
+  if (!/^(DIV|P)$/.test(el.tagName)) return false;
+  const cl = el.classList;
+  if (cl && (cl.contains("nb-box") || cl.contains("nb-secbox") || cl.contains("nb-toggle") || cl.contains("embed-pdf") || cl.contains("nb-ind") || cl.contains("nb-quote"))) return false;
+  return Array.from(el.childNodes).some(ch => ch.nodeName === "BR");
+}
+/* Split a big br-separated chunk into one real block per line (formatting preserved) */
+function explodeBrLines(block) {
+  const parent = block.parentNode;
+  if (!parent) return;
+  const frag = document.createDocumentFragment();
+  let line = document.createElement("div");
+  const flush = (force) => {
+    if (line.firstChild || force) {
+      if (!line.firstChild) line.innerHTML = "<br>";
+      frag.appendChild(line);
+      line = document.createElement("div");
+    }
+  };
+  Array.from(block.childNodes).forEach(ch => {
+    if (ch.nodeName === "BR") flush(true);
+    else if (isBlockish(ch)) { flush(false); frag.appendChild(ch); }
+    else line.appendChild(ch);
+  });
+  flush(false);
+  parent.insertBefore(frag, block);
+  block.remove();
+}
+
+function changeIndent(delta) {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  if (!$("editor").contains(range.startContainer)) return;
+
+  /* pin the selection with invisible markers so it survives restructuring */
+  const ms = document.createElement("span");
+  const me = document.createElement("span");
+  const rEnd = range.cloneRange(); rEnd.collapse(false); rEnd.insertNode(me);
+  const rStart = range.cloneRange(); rStart.collapse(true); rStart.insertNode(ms);
+
+  /* normalize: any big br-separated chunk holding the selection becomes real per-line blocks */
+  [ms, me].forEach(mk => {
+    const cand = blockOf(mk);
+    if (cand && canExplode(cand)) explodeBrLines(cand);
+  });
+
+  /* rebuild the selection between the markers */
+  const nr = document.createRange();
+  nr.setStartAfter(ms); nr.setEndBefore(me);
+  sel.removeAllRanges(); sel.addRange(nr);
+
+  /* now every selected line is a proper block — move them ALL together */
+  const blocks = selectedBlocks();
+  blocks.forEach(b => {
+    if (b.classList && (b.classList.contains("nb-box") || b.classList.contains("nb-secbox") || b.classList.contains("nb-toggle") || b.classList.contains("embed-pdf"))) return;
+    const cur = parseFloat(b.style.marginLeft) || 0;
+    const next = Math.max(0, Math.min(INDENT_MAX, cur + delta * INDENT_STEP));
+    b.style.marginLeft = next ? next + "px" : "";
+  });
+
+  ms.remove(); me.remove();
+
+  /* keep the lines selected so you can press Tab repeatedly */
+  if (blocks.length) {
+    const fr = document.createRange();
+    const first = blocks[0], last = blocks[blocks.length - 1];
+    fr.setStart(first, 0);
+    fr.setEnd(last, last.childNodes.length);
+    sel.removeAllRanges(); sel.addRange(fr);
+  }
+  syncNote();
+}
+$("indentBtn").addEventListener("mousedown", e => e.preventDefault());
+$("outdentBtn").addEventListener("mousedown", e => e.preventDefault());
+$("indentBtn").addEventListener("click", () => changeIndent(1));
+$("outdentBtn").addEventListener("click", () => changeIndent(-1));
+
+/* Tab / Shift+Tab shortcuts (except inside titles) */
+$("editor").addEventListener("keydown", (e) => {
+  if (e.key !== "Tab") return;
+  let n = window.getSelection().anchorNode;
+  if (n && n.nodeType === 3) n = n.parentElement;
+  if (n && n.closest && (n.closest(".nb-box-title") || n.closest(".nb-toggle-title"))) return;
+  e.preventDefault();
+  changeIndent(e.shiftKey ? -1 : 1);
+});
+
+/* Notion-style Enter behavior */
+$("editor").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || e.shiftKey) return;
+  const sel = window.getSelection();
+  if (!sel.rangeCount || !sel.isCollapsed) return;
+  let node = sel.anchorNode;
+  if (node && node.nodeType === 3) node = node.parentElement;
+  if (!node || !$("editor").contains(node)) return;
+
+  /* Headings are single-line (like Notion): Enter at the end of a subtitle exits to normal text */
+  const h = node.closest && node.closest("h1,h2,h3");
+  if (h && !node.closest(".nb-toggle-title")) {
+    const r = sel.getRangeAt(0);
+    const tail = r.cloneRange();
+    tail.selectNodeContents(h);
+    tail.setStart(r.endContainer, r.endOffset);
+    if (tail.toString().replace(/\u200B/g, "").trim() === "") {
+      e.preventDefault();
+      const p = document.createElement("p");
+      p.innerHTML = "<br>";
+      h.parentNode.insertBefore(p, h.nextSibling);
+      const nr = document.createRange();
+      nr.setStart(p, 0); nr.collapse(true);
+      sel.removeAllRanges(); sel.addRange(nr);
+      syncNote();
+      return;
+    }
+  }
+
+  const wrapper = node.closest("blockquote, .nb-quote, .nb-toggle-body, .nb-box-body, .nb-secbox-body");
+  if (!wrapper) {
+    /* not in a quote/toggle/box — but if this is an empty INDENTED line, Enter clears the indent */
+    const blk = blockOf(node);
+    if (blk && (parseFloat(blk.style.marginLeft) || 0) > 0) {
+      const txt = (blk.textContent || "").replace(/\u200B/g, "").trim();
+      if (txt === "" && !blk.querySelector("img,table,.embed-pdf,.nb-toggle,.nb-box")) {
+        e.preventDefault();
+        blk.style.marginLeft = "";
+        syncNote();
+      }
+    }
+    return;
+  }
+
+  const isEmpty = (el) => {
+    const t = (el.textContent || "").replace(/\u200B/g, "").trim();
+    return t === "" && !el.querySelector("img,canvas,table,.embed-pdf,.nb-toggle");
+  };
+
+  /* Detection 1: the caret sits in a real line element (div/p) that is empty */
+  let line = node;
+  while (line !== wrapper && line.parentElement && line.parentElement !== wrapper) line = line.parentElement;
+  const target = (line === wrapper) ? null : line;
+  let emptyElementLine = target ? isEmpty(target) : isEmpty(wrapper);
+
+  /* Detection 2: lines separated by <br> (how Chrome does quotes) —
+     measure the visual line's text via selection line boundaries */
+  let emptyTextLine = false;
+  if (!emptyElementLine && sel.modify) {
+    const saved = sel.getRangeAt(0).cloneRange();
+    try {
+      sel.modify("extend", "backward", "lineboundary");
+      const before = sel.toString();
+      sel.removeAllRanges(); sel.addRange(saved.cloneRange());
+      sel.modify("extend", "forward", "lineboundary");
+      const after = sel.toString();
+      emptyTextLine = (before + after).replace(/\u200B/g, "").trim() === "";
+    } catch (err) { /* fall through */ }
+    sel.removeAllRanges(); sel.addRange(saved);
+  }
+
+  if (!emptyElementLine && !emptyTextLine) return; // line has content → normal Enter
+
+  e.preventDefault();
+  const isToggleBody = wrapper.classList.contains("nb-toggle-body");
+  const isBoxBody = wrapper.classList.contains("nb-box-body") || wrapper.classList.contains("nb-secbox-body");
+  const block = isToggleBody ? wrapper.closest(".nb-toggle") : isBoxBody ? wrapper.closest(".nb-box, .nb-secbox") : wrapper;
+
+  /* remember where to place the exit paragraph BEFORE any removals,
+     because the quote itself may get deleted below */
+  const parent = block.parentNode;
+  const anchorAfter = block.nextSibling;
+
+  if (emptyElementLine && target) {
+    target.remove();
+  } else if (emptyTextLine) {
+    /* remove the <br> that created this empty line */
+    document.execCommand("delete", false, null);
+  }
+  if ((isToggleBody || isBoxBody) && !wrapper.firstElementChild && !wrapper.textContent.trim()) wrapper.innerHTML = "<p><br></p>";
+  if (!isToggleBody && !isBoxBody && isEmpty(wrapper)) wrapper.remove();
+
+  const p = document.createElement("p");
+  p.innerHTML = "<br>";
+  if (block.parentNode) {
+    block.parentNode.insertBefore(p, block.nextSibling);
+  } else if (anchorAfter && anchorAfter.parentNode === parent) {
+    parent.insertBefore(p, anchorAfter);
+  } else {
+    parent.appendChild(p);
+  }
+  const r = document.createRange();
+  r.setStart(p, 0); r.collapse(true);
+  sel.removeAllRanges(); sel.addRange(r);
+  syncNote();
+});
+
+/* Table header color (applies to all header cells of the target table) */
+function applyTableHeaderColor(bg, txt) {
+  const t = boxPickerTarget;
+  boxPickerTarget = null;
+  if (!t) return;
+  t.style.setProperty("--thbg", bg);
+  t.style.setProperty("--thc", txt);
+  syncNote();
+}
+
+/* ============ Table resize: drag the grid lines ============ */
+let tResize = null, tHoverEdge = null, justResized = false;
+const T_EDGE = 6;
+
+$("editor").addEventListener("pointermove", (e) => {
+  if (tResize) { doTableResize(e); return; }
+  const cell = e.target.closest && e.target.closest(".nb-table td, .nb-table th");
+  if (!cell) {
+    if (tHoverEdge) { tHoverEdge = null; $("editor").style.cursor = ""; }
+    return;
+  }
+  const r = cell.getBoundingClientRect();
+  const nearRight = (r.right - e.clientX) < T_EDGE;
+  const nearBottom = (r.bottom - e.clientY) < T_EDGE;
+  tHoverEdge = nearRight ? { type: "col", cell } : nearBottom ? { type: "row", cell } : null;
+  $("editor").style.cursor = nearRight ? "col-resize" : nearBottom ? "row-resize" : "";
+});
+
+$("editor").addEventListener("pointerdown", (e) => {
+  if (!tHoverEdge) return;
+  const cell = tHoverEdge.cell;
+  const table = cell.closest(".nb-table");
+  if (!table) return;
+  e.preventDefault();
+  if (tHoverEdge.type === "col") {
+    table.style.tableLayout = "fixed";
+    if (!table.style.width) table.style.width = table.getBoundingClientRect().width + "px";
+    const firstRow = table.rows[0];
+    Array.from(firstRow.cells).forEach(c => {
+      if (!c.style.width) c.style.width = c.getBoundingClientRect().width + "px";
+    });
+    const idx = Math.min(cell.cellIndex, firstRow.cells.length - 1);
+    const target = firstRow.cells[idx];
+    tResize = { type: "col", cell: target, startX: e.clientX, startW: target.getBoundingClientRect().width };
+  } else {
+    const tr = cell.parentElement;
+    tResize = { type: "row", tr, startY: e.clientY, startH: tr.getBoundingClientRect().height };
+  }
+  document.body.style.userSelect = "none";
+});
+
+function doTableResize(e) {
+  if (!tResize) return;
+  if (tResize.type === "col") {
+    const w = Math.max(34, tResize.startW + (e.clientX - tResize.startX));
+    tResize.cell.style.width = w + "px";
+  } else {
+    const h = Math.max(26, tResize.startH + (e.clientY - tResize.startY));
+    tResize.tr.style.height = h + "px";
+  }
+}
+window.addEventListener("pointermove", (e) => { if (tResize) doTableResize(e); });
+window.addEventListener("pointerup", () => {
+  if (tResize) {
+    tResize = null;
+    document.body.style.userSelect = "";
+    justResized = true;
+    setTimeout(() => { justResized = false; }, 80);
+    syncNote();
+  }
+});
+
+/* ============ Chart (table) menu: click any cell to edit structure ============ */
+let activeTable = null, activeCell = null;
+
+$("editor").addEventListener("click", (e) => {
+  const cell = e.target.closest("td,th");
+  const table = e.target.closest(".nb-table");
+  if (table && cell && $("editor").contains(table)) {
+    if (justResized) return; /* the click at the end of a drag shouldn't open the menu */
+    activeTable = table; activeCell = cell;
+    const r = table.getBoundingClientRect();
+    const m = $("tableMenu");
+    m.style.top = Math.max(8, r.top - 42) + "px";
+    m.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 300)) + "px";
+    m.classList.add("open");
+  } else if (!e.target.closest("#tableMenu")) {
+    hideTableMenu();
+  }
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#tableMenu") && !e.target.closest(".nb-table")) hideTableMenu();
+});
+function hideTableMenu() {
+  $("tableMenu").classList.remove("open");
+  activeTable = null; activeCell = null;
+}
+document.addEventListener("scroll", hideTableMenu, true);
+
+$("tableMenu").addEventListener("mousedown", e => e.preventDefault());
+$("tableMenu").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b || !activeTable) return;
+  const t = b.dataset.t;
+  const row = activeCell ? activeCell.parentElement : activeTable.rows[activeTable.rows.length - 1];
+  const ci = activeCell ? activeCell.cellIndex : 0;
+  const headerIsTH = activeTable.rows[0] && activeTable.rows[0].cells[0] && activeTable.rows[0].cells[0].tagName === "TH";
+
+  if (t === "rowAdd") {
+    const nr = activeTable.insertRow(row.rowIndex + 1);
+    const nCols = activeTable.rows[0].cells.length;
+    for (let i = 0; i < nCols; i++) { const c = nr.insertCell(); c.innerHTML = "<br>"; }
+  }
+  if (t === "colAdd") {
+    for (const r of activeTable.rows) {
+      const isHeaderRow = headerIsTH && r.rowIndex === 0;
+      const c = document.createElement(isHeaderRow ? "th" : "td");
+      c.innerHTML = isHeaderRow ? "Header" : "<br>";
+      r.insertBefore(c, r.cells[ci + 1] || null);
+    }
+  }
+  if (t === "rowDel") {
+    if (activeTable.rows.length <= 1) { activeTable.remove(); hideTableMenu(); }
+    else { activeTable.deleteRow(row.rowIndex); hideTableMenu(); }
+  }
+  if (t === "colDel") {
+    if (activeTable.rows[0].cells.length <= 1) { activeTable.remove(); hideTableMenu(); }
+    else { for (const r of activeTable.rows) r.deleteCell(Math.min(ci, r.cells.length - 1)); hideTableMenu(); }
+  }
+  if (t === "thColor") {
+    const tbl = activeTable;
+    openBoxPicker(b, tbl, "table"); /* position from the button while the menu is still visible */
+    hideTableMenu();
+    return;
+  }
+  if (t === "tblDel") {
+    if (confirm("Delete this whole chart?")) { activeTable.remove(); hideTableMenu(); }
+  }
+  syncNote();
+});
+
+/* ============ Export / Import backup ============ */
+$("exportBtn").addEventListener("click", () => {
+  const backup = {
+    version: 1,
+    exported: new Date().toISOString(),
+    data,
+    lockHash: lockHash || null
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const date = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
+  a.href = url;
+  a.download = "law-notebook-backup-" + date + ".json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+  setStatus("Backup downloaded ✓");
+});
+
+$("importBtn").addEventListener("click", () => {
+  if (!confirm("Restoring a backup will REPLACE all your current notes, courses, and settings with the contents of the backup file.\n\nMake sure to back up first if you want to keep what you have now.\n\nContinue?")) return;
+  $("importFile").click();
+});
+
+$("importFile").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const backup = JSON.parse(text);
+    if (!backup.data || !Array.isArray(backup.data.courses)) {
+      alert("This doesn't look like a valid notebook backup file."); return;
+    }
+    data = backup.data;
+    if (backup.lockHash) {
+      lockHash = backup.lockHash;
+      await store.set("nb-lock", lockHash);
+    } else {
+      lockHash = null;
+      await store.set("nb-lock", "");
+    }
+    await store.set(STORE_KEY, JSON.stringify(data));
+    data.meta = data.meta || { title: "My Law Notebook", subtitle: "University of St. Thomas · 1L" };
+    $("sbTitle").textContent = data.meta.title;
+    $("sbSubtitle").textContent = data.meta.subtitle;
+    render();
+    setStatus("Restored from backup ✓ — " + new Date(backup.exported).toLocaleDateString());
+    alert("Restored! All your notes, courses, and settings are back.");
+  } catch (err) {
+    alert("Couldn't read that file. Make sure it's a .json backup from this notebook.");
+  }
+});
+
+/* ============ Lock screen (password) ============ */
+let lockHash = null;
+
+async function hashText(t) {
+  if (crypto && crypto.subtle) {
+    const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+    return Array.from(new Uint8Array(d)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  let h = 0;
+  for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0;
+  return "f" + h;
+}
+
+async function tryUnlock() {
+  const v = $("lockInput").value;
+  if (!v) return;
+  const h = await hashText(v);
+  if (h === lockHash) {
+    $("lockScreen").classList.remove("show");
+    $("lockInput").value = "";
+    $("lockError").textContent = "";
+  } else {
+    $("lockError").textContent = "Wrong password — try again.";
+    const card = document.querySelector(".lock-card");
+    card.classList.remove("lock-shake");
+    void card.offsetWidth;
+    card.classList.add("lock-shake");
+    $("lockInput").select();
+  }
+}
+$("lockGo").addEventListener("click", tryUnlock);
+$("lockInput").addEventListener("keydown", e => { if (e.key === "Enter") tryUnlock(); });
+
+$("lockBtn").addEventListener("click", async () => {
+  if (lockHash) {
+    const cur = prompt("Enter your current password to change or remove it:");
+    if (cur === null) return;
+    if (await hashText(cur) !== lockHash) { alert("Wrong password."); return; }
+    const next = prompt("New password (leave blank + OK to remove the password):");
+    if (next === null) return;
+    if (!next.trim()) {
+      lockHash = null;
+      try { await store.set("nb-lock", ""); } catch (e) {}
+      alert("Password removed — the notebook opens directly now.");
+      return;
+    }
+    lockHash = await hashText(next.trim());
+    try { await store.set("nb-lock", lockHash); } catch (e) {}
+    alert("Password changed.");
+  } else {
+    const p1 = prompt("Set a password for this notebook.\n\nHonest note: this is a privacy screen to keep casual eyes out — it hides the notebook behind a login, but it is not bank-grade encryption.\n\nEnter a password:");
+    if (!p1 || !p1.trim()) return;
+    const p2 = prompt("Type it once more to confirm:");
+    if (p2 !== p1) { alert("They didn't match — password not set."); return; }
+    lockHash = await hashText(p1.trim());
+    try { await store.set("nb-lock", lockHash); } catch (e) { alert("Couldn't save the password."); lockHash = null; return; }
+    alert("Password set! Next time the notebook opens, it will ask for it.\n\n⚠️ Don't forget it — if you lose it, tell Claude and we can reset it, but that's a hassle.");
+  }
+});
+
+/* ============ Callout box (색상 박스) ============ */
+const BOX_COLORS = [
+  ["#ebe7f5", "#6b4fa1"], /* lavender — like her reading notes */
+  ["#e3edf7", "#2e6da4"], /* blue */
+  ["#e4f2e8", "#3d7a52"], /* green */
+  ["#faf3d9", "#9a7b1f"], /* yellow */
+  ["#fbeadd", "#b5622a"], /* peach */
+  ["#f9e4ed", "#b04a7e"], /* pink */
+  ["#e0f2ee", "#2f7a6b"], /* mint */
+  ["#efefed", "#5f5f5c"], /* gray */
+  ["#fdecec", "#b04343"]  /* red */
+];
+let boxPickerTarget = null; /* null = insert new box; element = recolor that box */
+let boxPickerMode = "callout"; /* "callout" (▣ pastel box) or "section" (❶ header box) */
+
+function boxAccentFor(bg) { return isLight(bg) ? shadeColor(bg, -52) : "#ffffff"; }
+
+(function buildBoxPicker() {
+  const p = $("boxPicker");
+  BOX_COLORS.forEach(([bg, accent]) => {
+    const s = document.createElement("div");
+    s.className = "sw"; s.style.background = bg; s.title = bg;
+    s.style.borderBottom = "4px solid " + accent;
+    s.addEventListener("mousedown", e => e.preventDefault());
+    s.addEventListener("click", () => {
+      if (boxPickerMode === "section") applySectionColor(accent);
+      else if (boxPickerMode === "table") applyTableHeaderColor(bg, accent);
+      else applyBoxColor(bg, accent);
+      p.classList.remove("open");
+    });
+    p.appendChild(s);
+  });
+  const rainbow = document.createElement("div");
+  rainbow.className = "sw"; rainbow.title = "원하는 색 직접 고르기";
+  rainbow.style.background = "conic-gradient(#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#9c27b0,#f44336)";
+  rainbow.addEventListener("mousedown", e => e.preventDefault());
+  rainbow.addEventListener("click", () => {
+    p.classList.remove("open");
+    const target = boxPickerTarget;
+    const mode = boxPickerMode;
+    openColorPicker(rainbow, mode === "section" ? "#5b3d8f" : mode === "table" ? "#ebe7f5" : "#ebe7f5", (hex) => {
+      boxPickerTarget = target;
+      boxPickerMode = mode;
+      if (mode === "section") applySectionColor(hex);
+      else if (mode === "table") applyTableHeaderColor(hex, isLight(hex) ? shadeColor(hex, -52) : "#ffffff");
+      else applyBoxColor(hex, boxAccentFor(hex));
+    });
+  });
+  p.appendChild(rainbow);
+})();
+
+function openBoxPicker(anchorEl, targetBox, mode) {
+  boxPickerTarget = targetBox || null;
+  boxPickerMode = mode || "callout";
+  const p = $("boxPicker");
+  const r = anchorEl.getBoundingClientRect();
+  p.style.top = Math.min(r.bottom + 8, window.innerHeight - 140) + "px";
+  p.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 200)) + "px";
+  p.classList.add("open");
+}
+document.addEventListener("mousedown", (e) => {
+  if ($("boxPicker").classList.contains("open") &&
+      !e.target.closest("#boxPicker") && !e.target.closest("#boxBtn") && !e.target.closest(".nb-box-color")) {
+    $("boxPicker").classList.remove("open");
+  }
+});
+
+function applyBoxColor(bg, accent) {
+  if (boxPickerTarget) { /* recolor an existing box */
+    boxPickerTarget.style.setProperty("--bb", bg);
+    boxPickerTarget.style.setProperty("--ba", accent);
+    boxPickerTarget = null;
+    syncNote();
+    return;
+  }
+  /* insert a new box */
+  const bid = "b" + Math.random().toString(36).slice(2);
+  insertBlock(
+    `<div class="nb-box" id="${bid}" style="--bb:${bg};--ba:${accent};">` +
+      '<div class="nb-box-tools" contenteditable="false">' +
+        '<button class="nb-box-color" type="button" title="박스 색 바꾸기">🎨</button>' +
+        '<button class="nb-box-del" type="button" title="박스 삭제">✕</button>' +
+      '</div>' +
+      '<div class="nb-box-title"></div>' +
+      '<div class="nb-box-body"><p><br></p></div>' +
+    '</div><p><br></p>'
+  );
+  const box = document.getElementById(bid);
+  if (box) {
+    box.removeAttribute("id");
+    const title = box.querySelector(".nb-box-title");
+    const sel = window.getSelection();
+    const r = document.createRange();
+    r.setStart(title, 0); r.collapse(true);
+    sel.removeAllRanges(); sel.addRange(r);
+  }
+}
+
+/* Section box (❶): insert with auto number, or recolor an existing one */
+function applySectionColor(color) {
+  const stc = isLight(color) ? "#3a3527" : "#ffffff";
+  if (boxPickerTarget) {
+    boxPickerTarget.style.setProperty("--sb", color);
+    boxPickerTarget.style.setProperty("--stc", stc);
+    boxPickerTarget = null;
+    syncNote();
+    return;
+  }
+  const num = $("editor").querySelectorAll(".nb-secbox").length + 1; /* auto: 1, 2, 3… */
+  const bid = "s" + Math.random().toString(36).slice(2);
+  insertBlock(
+    `<div class="nb-secbox" id="${bid}" style="--sb:${color};--stc:${stc};">` +
+      '<div class="nb-box-tools" contenteditable="false">' +
+        '<button class="nb-box-color" type="button" title="헤더 색 바꾸기">🎨</button>' +
+        '<button class="nb-box-del" type="button" title="박스 삭제">✕</button>' +
+      '</div>' +
+      '<div class="nb-secbox-head">' +
+        `<span class="nb-secbox-num" contenteditable="true">${num}</span>` +
+        '<span class="nb-secbox-title" contenteditable="true"></span>' +
+      '</div>' +
+      '<div class="nb-secbox-body"><p><br></p></div>' +
+    '</div><p><br></p>'
+  );
+  const box = document.getElementById(bid);
+  if (box) {
+    box.removeAttribute("id");
+    const title = box.querySelector(".nb-secbox-title");
+    const sel = window.getSelection();
+    const r = document.createRange();
+    r.setStart(title, 0); r.collapse(true);
+    sel.removeAllRanges(); sel.addRange(r);
+  }
+}
+
+$("secBtn").addEventListener("mousedown", e => e.preventDefault());
+$("secBtn").addEventListener("click", () => openBoxPicker($("secBtn"), null, "section"));
+
+$("boxBtn").addEventListener("mousedown", e => e.preventDefault());
+$("boxBtn").addEventListener("click", () => openBoxPicker($("boxBtn"), null, "callout"));
+
+/* box tools: recolor + delete (delegated — works for both ▣ and ❶ boxes) */
+$("editor").addEventListener("click", (e) => {
+  const colorBtn = e.target.closest(".nb-box-color");
+  if (colorBtn) {
+    const bx = colorBtn.closest(".nb-box, .nb-secbox");
+    openBoxPicker(colorBtn, bx, bx.classList.contains("nb-secbox") ? "section" : "callout");
+    return;
+  }
+  const delBtn = e.target.closest(".nb-box-del");
+  if (delBtn) {
+    if (confirm("이 박스와 안의 내용을 삭제할까요?")) {
+      delBtn.closest(".nb-box, .nb-secbox").remove();
+      syncNote();
+    }
+  }
+});
+
+/* Enter in a box title/number jumps to the body (titles stay one line) */
+$("editor").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || e.shiftKey) return;
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  let n = sel.anchorNode;
+  if (n && n.nodeType === 3) n = n.parentElement;
+  if (!n || !n.closest) return;
+  if (!n.closest(".nb-box-title") && !n.closest(".nb-secbox-title") && !n.closest(".nb-secbox-num")) return;
+  e.preventDefault();
+  const box = n.closest(".nb-box, .nb-secbox");
+  const body = box.querySelector(".nb-box-body, .nb-secbox-body");
+  if (!body.firstElementChild) body.innerHTML = "<p><br></p>";
+  const r = document.createRange();
+  r.setStart(body.firstElementChild, 0); r.collapse(true);
+  sel.removeAllRanges(); sel.addRange(r);
+});
+
+/* ============ Custom color picker (works everywhere, no native dialogs) ============ */
+const cp = { h: 30, s: 0.85, v: 0.85, cb: null, dragging: false };
+
+function hsvToRgb(h, s, v) {
+  const f = (n) => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); };
+  return [f(5), f(3), f(1)].map(x => Math.round(x * 255));
+}
+function rgbToHex(r, g, b) {
+  return "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+function cpCurrentHex() { return rgbToHex(...hsvToRgb(cp.h, cp.s, cp.v)); }
+function hexToHsv(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0;
+  if (d) {
+    if (max === r) h = ((g - b) / d) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60; if (h < 0) h += 360;
+  }
+  return { h, s: max ? d / max : 0, v: max };
+}
+
+function cpDraw() {
+  const cv = $("cpSV"), ctx = cv.getContext("2d"), w = cv.width, hgt = cv.height;
+  ctx.fillStyle = "hsl(" + cp.h + ",100%,50%)";
+  ctx.fillRect(0, 0, w, hgt);
+  let g = ctx.createLinearGradient(0, 0, w, 0);
+  g.addColorStop(0, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, hgt);
+  g = ctx.createLinearGradient(0, 0, 0, hgt);
+  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "#000");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, hgt);
+  /* selection ring */
+  const x = cp.s * w, y = (1 - cp.v) * hgt;
+  ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2);
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(x, y, 8.5, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(0,0,0,.55)"; ctx.lineWidth = 1; ctx.stroke();
+  $("cpPreview").style.background = cpCurrentHex();
+  $("cpHex").value = cpCurrentHex();
+}
+function cpSetFromHex(hex) {
+  const hsv = hexToHsv(hex);
+  if (!hsv) return false;
+  cp.h = hsv.h; cp.s = hsv.s; cp.v = hsv.v;
+  $("cpHue").value = Math.round(cp.h);
+  cpDraw();
+  return true;
+}
+function openColorPicker(anchorEl, initHex, cb) {
+  cp.cb = cb;
+  cpSetFromHex(initHex || "#d9730d") || cpSetFromHex("#d9730d");
+  const p = $("colorPicker");
+  const r = anchorEl.getBoundingClientRect();
+  p.style.top = Math.min(r.bottom + 8, window.innerHeight - 290) + "px";
+  p.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 256)) + "px";
+  p.classList.add("open");
+}
+function closeColorPicker() { $("colorPicker").classList.remove("open"); cp.cb = null; }
+
+/* SV square: click & drag */
+function cpPoint(e) {
+  const cv = $("cpSV"), r = cv.getBoundingClientRect();
+  const x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  const y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+  cp.s = x; cp.v = 1 - y;
+  cpDraw();
+}
+$("cpSV").addEventListener("pointerdown", (e) => { e.preventDefault(); cp.dragging = true; $("cpSV").setPointerCapture(e.pointerId); cpPoint(e); });
+$("cpSV").addEventListener("pointermove", (e) => { if (cp.dragging) cpPoint(e); });
+$("cpSV").addEventListener("pointerup", () => { cp.dragging = false; });
+$("cpHue").addEventListener("input", (e) => { cp.h = +e.target.value; cpDraw(); });
+$("cpHex").addEventListener("change", (e) => { if (!cpSetFromHex(e.target.value)) e.target.value = cpCurrentHex(); });
+$("cpHex").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("cpOk").click(); } });
+
+/* Eyedropper — pick any color on screen (Chrome/Edge) */
+$("cpEye").addEventListener("mousedown", e => e.preventDefault());
+$("cpEye").addEventListener("click", async () => {
+  if (!window.EyeDropper) {
+    alert("이 브라우저는 스포이드를 지원하지 않아요. Chrome이나 Edge에서 열면 사용할 수 있어요! (색상판과 HEX 입력은 어디서든 작동합니다)");
+    return;
+  }
+  try {
+    const result = await new EyeDropper().open();
+    cpSetFromHex(result.sRGBHex);
+  } catch (e) { /* user pressed Esc — fine */ }
+});
+
+$("cpOk").addEventListener("mousedown", e => e.preventDefault());
+$("cpOk").addEventListener("click", () => {
+  const hex = cpCurrentHex();
+  const cb = cp.cb;
+  closeColorPicker();
+  if (cb) cb(hex);
+});
+document.addEventListener("mousedown", (e) => {
+  if ($("colorPicker").classList.contains("open") &&
+      !e.target.closest("#colorPicker") &&
+      !e.target.closest(".sw") && !e.target.closest(".cp-swatches")) {
+    closeColorPicker();
+  }
+});
+
+/* ============ Toolbar ============ */
+document.execCommand("styleWithCSS", false, true);
+document.querySelectorAll(".tb-btn[data-cmd]").forEach(b => {
+  b.addEventListener("mousedown", e => e.preventDefault()); // keep selection
+  b.addEventListener("click", () => {
+    document.execCommand(b.dataset.cmd, false, null);
+    $("editor").focus();
+    syncNote();
+  });
+});
+/* Subtitle buttons: apply the heading, click again on a heading line to turn it back to normal text */
+document.querySelectorAll(".tb-btn[data-block]").forEach(b => {
+  b.addEventListener("mousedown", e => e.preventDefault());
+  b.addEventListener("click", () => {
+    const tag = b.dataset.block;
+    const sel = window.getSelection();
+    let n = sel.anchorNode;
+    if (n && n.nodeType === 3) n = n.parentElement;
+    const already = n && n.closest && n.closest(tag);
+    document.execCommand("formatBlock", false, already ? "<p>" : "<" + tag + ">");
+    $("editor").focus(); syncNote();
+  });
+});
+
+/* Quote: custom block (same structure as toggles, so escaping works identically) */
+$("quoteBtn").addEventListener("mousedown", e => e.preventDefault());
+$("quoteBtn").addEventListener("click", () => {
+  const sel = window.getSelection();
+  const txt = (sel && sel.rangeCount && $("editor").contains(sel.anchorNode)) ? sel.toString() : "";
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const qid = "q" + Math.random().toString(36).slice(2);
+  const inner = txt.trim()
+    ? esc(txt).split(/\n/).map(l => `<p>${l || "<br>"}</p>`).join("")
+    : "<p><br></p>";
+  insertBlock(`<div class="nb-quote" id="${qid}">${inner}</div><p><br></p>`);
+  const q = document.getElementById(qid);
+  if (q) {
+    q.removeAttribute("id");
+    if (!txt.trim()) {
+      const r = document.createRange();
+      r.setStart(q.firstElementChild, 0); r.collapse(true);
+      sel.removeAllRanges(); sel.addRange(r);
+    }
+  }
+});
+$("fontFamily").addEventListener("change", e => {
+  if (!e.target.value) return;
+  document.execCommand("fontName", false, e.target.value);
+  e.target.value = ""; $("editor").focus(); syncNote();
+});
+/* Font size: any pixel value via +/− or typing a number. Applies to selected text. */
+function applyFontSize(px) {
+  px = Math.max(8, Math.min(96, Math.round(px)));
+  $("fsInput").value = px;
+  const sel = window.getSelection();
+  if (!sel.rangeCount || sel.isCollapsed || !$("editor").contains(sel.anchorNode)) return;
+  /* trick: use the legacy font-tag mode as a marker, then swap in exact pixel spans */
+  document.execCommand("styleWithCSS", false, false);
+  document.execCommand("fontSize", false, "7");
+  document.execCommand("styleWithCSS", false, true);
+  $("editor").querySelectorAll('font[size="7"]').forEach(f => {
+    const span = document.createElement("span");
+    span.style.fontSize = px + "px";
+    while (f.firstChild) span.appendChild(f.firstChild);
+    f.replaceWith(span);
+  });
+  syncNote();
+}
+$("fsMinus").addEventListener("mousedown", e => e.preventDefault());
+$("fsPlus").addEventListener("mousedown", e => e.preventDefault());
+$("fsMinus").addEventListener("click", () => applyFontSize((+$("fsInput").value || 16) - 2));
+$("fsPlus").addEventListener("click", () => applyFontSize((+$("fsInput").value || 16) + 2));
+$("fsInput").addEventListener("focus", saveSel);
+$("fsInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); restoreSel(); applyFontSize(+$("fsInput").value || 16); $("editor").focus(); }
+});
+$("fsInput").addEventListener("change", () => { restoreSel(); applyFontSize(+$("fsInput").value || 16); });
+/* show the size of whatever text the caret is in */
+document.addEventListener("selectionchange", () => {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  let n = sel.anchorNode;
+  if (n && n.nodeType === 3) n = n.parentElement;
+  if (!n || !$("editor").contains(n) || document.activeElement === $("fsInput")) return;
+  const size = parseFloat(getComputedStyle(n).fontSize);
+  if (size) $("fsInput").value = Math.round(size);
+});
+function syncNote() {
+  const n = activeNote(); if (!n) return;
+  n.html = $("editor").innerHTML; n.updated = Date.now();
+  scheduleSave();
+}
+
+/* Color palettes */
+const TEXT_COLORS = [
+  "#37352f","#787774","#9f6b53","#d9730d","#cb912f","#448361","#337ea9","#9065b0","#c14c8a","#d44c47",
+  "#000000","#1155cc","#cc0000","#38761d","#674ea7","#e69138","#a64d79","#134f5c","#7f6000","#666666"
+];
+const HL_COLORS = [
+  "transparent","#f1f1ef","#f4eeee","#faebdd","#fdecc8","#deeedd","#ddebf1","#eae4f2","#f4dfeb","#fbe4e4",
+  "#fff176","#ffe082","#ffcc80","#a5d6a7","#80deea","#90caf9","#ce93d8","#f48fb1","#ffab91","#e6ee9c"
+];
+
+/* Keep the text selection alive while the color slider is open */
+let savedRange = null;
+function saveSel() {
+  const s = window.getSelection();
+  if (s.rangeCount && $("editor").contains(s.anchorNode)) savedRange = s.getRangeAt(0).cloneRange();
+}
+function restoreSel() {
+  if (!savedRange) return;
+  const s = window.getSelection();
+  s.removeAllRanges(); s.addRange(savedRange);
+}
+
+buildPalette("textPalette", TEXT_COLORS, c => document.execCommand("foreColor", false, c), "#d44c47");
+buildPalette("hlPalette", HL_COLORS, c => document.execCommand("hiliteColor", false, c), "#fff176");
+
+function buildPalette(id, colors, apply, defaultCustom) {
+  const p = $(id);
+  colors.forEach(c => {
+    const s = document.createElement("div");
+    s.className = "sw"; s.style.background = c;
+    if (c === "transparent") { s.style.background = "#fff"; s.title = "Remove highlight"; s.textContent = "✕"; s.style.textAlign="center"; s.style.lineHeight="24px"; s.style.fontSize="11px"; s.style.color="#999"; }
+    s.addEventListener("mousedown", e => e.preventDefault());
+    s.addEventListener("click", () => { apply(c); p.classList.remove("open"); $("editor").focus(); syncNote(); });
+    p.appendChild(s);
+  });
+  /* Rainbow swatch → opens our own color picker (with eyedropper) */
+  const custom = document.createElement("div");
+  custom.className = "sw"; custom.title = "원하는 색 직접 고르기 (스포이드 포함)";
+  custom.style.background = "conic-gradient(#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#9c27b0,#f44336)";
+  custom.addEventListener("mousedown", e => { e.preventDefault(); saveSel(); });
+  custom.addEventListener("click", () => {
+    p.classList.remove("open");
+    openColorPicker(custom, defaultCustom, (hex) => {
+      restoreSel();
+      apply(hex);
+      $("editor").focus();
+      syncNote();
+    });
+  });
+  p.appendChild(custom);
+}
+$("textColorBtn").addEventListener("mousedown", e => e.preventDefault());
+$("hlBtn").addEventListener("mousedown", e => e.preventDefault());
+$("textColorBtn").addEventListener("click", () => togglePalette("textPalette"));
+$("hlBtn").addEventListener("click", () => togglePalette("hlPalette"));
+function togglePalette(id) {
+  document.querySelectorAll(".palette").forEach(p => { if (p.id !== id) p.classList.remove("open"); });
+  $(id).classList.toggle("open");
+}
+document.addEventListener("click", e => {
+  if (!e.target.closest(".swatch-wrap")) document.querySelectorAll(".palette").forEach(p => p.classList.remove("open"));
+});
+
+/* ============ AI: shared helper ============ */
+function inClaudeEnv() { return store.backend === "artifact"; }
+function canUseClaude() { return inClaudeEnv(); }
+
+async function callClaude(prompt) {
+  let response;
+  try {
+    response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+  } catch (e) {
+    throw { kind: "offline" };
+  }
+  let resp;
+  try { resp = await response.json(); }
+  catch (e) { throw { kind: "api", detail: "HTTP " + response.status }; }
+  if (resp.error) throw { kind: "api", detail: resp.error.message || resp.error.type || "unknown error" };
+  const raw = (resp.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+  if (!raw.trim()) throw { kind: "api", detail: "empty response" };
+  return raw;
+}
+function extractJSON(raw) {
+  const cleaned = raw.replace(/```json|```/g, "").trim();
+  try { return JSON.parse(cleaned); } catch (e) {}
+  // fall back: grab the outermost {...} or [...] in case extra text slipped in
+  for (const [open, close] of [["{", "}"], ["[", "]"]]) {
+    const a = cleaned.indexOf(open), b = cleaned.lastIndexOf(close);
+    if (a !== -1 && b > a) {
+      try { return JSON.parse(cleaned.slice(a, b + 1)); } catch (e) {}
+    }
+  }
+  throw { kind: "parse" };
+}
+function aiErrorMessage(err) {
+  if (err && err.kind === "offline")
+    return "Couldn't reach the AI — this feature works when the notebook is open inside Claude. Everything else (notes, auto-save, PDF, basic dictionary) works here too.";
+  if (err && err.kind === "api")
+    return "The AI service returned an error (" + err.detail + "). Please wait a moment and try again.";
+  if (err && err.kind === "parse")
+    return "Got a response I couldn't read — please try once more.";
+  return "Something unexpected went wrong — please try again.";
+}
+
+/* ============ AI: Key points ============ */
+$("kpBtn").addEventListener("click", generateKeyPoints);
+$("kpClose").addEventListener("click", () => {
+  const n = activeNote(); if (!n) return;
+  n.keyPoints = []; renderKeyPoints(n); scheduleSave();
+});
+
+async function generateKeyPoints() {
+  const n = activeNote(); if (!n) return;
+  if (!canUseClaude()) {
+    alert("✨ Key points works when the notebook is open inside Claude.\n\nTip: write your notes anywhere, then open the notebook in Claude when you want key points generated — they save with the note, so you'll still see them in this browser afterward.");
+    return;
+  }
+  const text = $("editor").innerText.trim();
+  if (text.length < 40) { alert("Write a bit more first — I need some content to summarize!"); return; }
+  const btnEl = $("kpBtn");
+  btnEl.disabled = true; btnEl.innerHTML = '<span class="spinner"></span> Thinking…';
+  try {
+    const raw = await callClaude(`You are helping a Korean 1L law student at a U.S. law school study. Below are her class notes. Extract the 4 to 8 most important key points she should MEMORIZE for class and exams.
+
+Rules:
+- Plain, simple step-by-step language (she prefers story-style, not dense legal phrasing).
+- For complicated legal concepts or terms of art, add the Korean meaning in parentheses right after the term, e.g., "consideration (약인)".
+- Analyze from the perspective of U.S. federal courts where relevant.
+- Respond with ONLY a JSON array of strings, no markdown, no backticks, no preamble. Example: ["point one","point two"]
+
+NOTES TITLE: ${n.title || "Untitled"}
+NOTES:
+${text.slice(0, 8000)}`);
+    const points = extractJSON(raw);
+    if (!Array.isArray(points)) throw { kind: "parse" };
+    n.keyPoints = points.map(String); n.updated = Date.now();
+    renderKeyPoints(n); scheduleSave();
+  } catch (err) {
+    alert(aiErrorMessage(err));
+  } finally {
+    btnEl.disabled = false; btnEl.innerHTML = "✨ Key points";
+  }
+}
+
+/* ============ AI: Dictionary ============ */
+$("dictBtn").addEventListener("click", () => {
+  const sel = window.getSelection().toString().trim();
+  $("dictPanel").classList.add("open");
+  if (sel && sel.length < 40) { $("dictInput").value = sel; lookupWord(); }
+  else $("dictInput").focus();
+});
+$("dictClose").addEventListener("click", () => $("dictPanel").classList.remove("open"));
+$("dictGo").addEventListener("click", lookupWord);
+$("dictInput").addEventListener("keydown", e => { if (e.key === "Enter") lookupWord(); });
+
+async function lookupWord() {
+  const word = $("dictInput").value.trim();
+  if (!word) return;
+  const out = $("dictResult");
+  out.innerHTML = '<span class="spinner"></span> Looking up…';
+  if (canUseClaude()) {
+    try {
+      const raw = await callClaude(`Explain the English word or phrase "${word}" for a law student.
+Respond with ONLY a JSON object, no markdown, no backticks:
+{"word":"the word","pos":"part of speech","explanation":"2-3 sentence plain-English explanation of what it means and how it's used — not just a one-line definition","korean":"Korean meaning(s), comma-separated","legal":"if it has a special legal meaning, explain that briefly in English (from a U.S. federal courts perspective where relevant), with the Korean legal term in parentheses; otherwise empty string","example":"one short example sentence using it naturally"}`);
+      const d = extractJSON(raw);
+      renderDictResult(out, d);
+      return;
+    } catch (err) {
+      if (err && err.kind === "offline") { await basicDictLookup(word, out); return; }
+      showDictError(out, aiErrorMessage(err));
+      return;
+    }
+  }
+  await basicDictLookup(word, out);
+}
+
+/* Free basic mode for normal browsers: chained public sources so the English meaning always comes back */
+function stripHtml(s) {
+  return String(s || "").replace(/<[^>]*>/g, "").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();
+}
+async function fetchJson(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw 0;
+  return r.json();
+}
+async function getEnglishDef(word) {
+  /* Source 1: dictionaryapi.dev — richest, but misses many words */
+  try {
+    const j = await fetchJson("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word));
+    if (Array.isArray(j) && j[0]) {
+      const m = (j[0].meanings || [])[0];
+      if (m) {
+        const defs = (m.definitions || []).slice(0, 2).map(x => x.definition).filter(Boolean);
+        const ex = (m.definitions || []).find(x => x.example);
+        if (defs.length) return { pos: m.partOfSpeech || "", explanation: defs.join(" Also: "), example: ex ? ex.example : "" };
+      }
+    }
+  } catch (e) {}
+  /* Source 2: Wiktionary — huge coverage, incl. phrases and legal terms */
+  try {
+    const j = await fetchJson("https://en.wiktionary.org/api/rest_v1/page/definition/" + encodeURIComponent(word));
+    const arr = j.en || j[Object.keys(j)[0]];
+    if (arr && arr[0]) {
+      const m = arr[0];
+      const defs = (m.definitions || []).map(x => stripHtml(x.definition)).filter(Boolean).slice(0, 2);
+      if (defs.length) return { pos: (m.partOfSpeech || "").toLowerCase(), explanation: defs.join(" Also: "), example: "" };
+    }
+  } catch (e) {}
+  /* Source 3: Datamuse — terse but very reliable last resort */
+  try {
+    const j = await fetchJson("https://api.datamuse.com/words?sp=" + encodeURIComponent(word) + "&md=d&max=1");
+    if (j[0] && j[0].defs && j[0].defs.length) {
+      const POS = { n: "noun", v: "verb", adj: "adjective", adv: "adverb" };
+      const defs = j[0].defs.slice(0, 2).map(s => s.split("\t")[1] || s);
+      return { pos: POS[j[0].defs[0].split("\t")[0]] || "", explanation: defs.join(" Also: "), example: "" };
+    }
+  } catch (e) {}
+  return null;
+}
+
+async function basicDictLookup(word, out) {
+  out.innerHTML = '<span class="spinner"></span> Looking up…';
+  /* normalize: trim punctuation + lowercase — public dictionaries fail on "Notebook," but find "notebook" */
+  const wordN = word.trim().replace(/^[\s.,!?;:"'()\[\]]+|[\s.,!?;:"'()\[\]]+$/g, "").toLowerCase() || word.trim();
+  const d = { word: word.trim(), pos: "", explanation: "", korean: "", legal: "", example: "" };
+  const [defRes, krRes] = await Promise.allSettled([
+    getEnglishDef(wordN),
+    fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(wordN) + "&langpair=en|ko").then(r => r.json())
+  ]);
+  if (defRes.status === "fulfilled" && defRes.value) {
+    d.pos = defRes.value.pos;
+    d.explanation = defRes.value.explanation;
+    d.example = defRes.value.example;
+  }
+  if (krRes.status === "fulfilled" && krRes.value && krRes.value.responseData && krRes.value.responseData.translatedText) {
+    const t = krRes.value.responseData.translatedText;
+    if (t && t.toLowerCase() !== wordN) d.korean = t;
+  }
+  if (!d.explanation && !d.korean) {
+    showDictError(out, "Couldn't find that word — check the spelling, or check your internet connection.");
+    return;
+  }
+  renderDictResult(out, d);
+  const note = document.createElement("div");
+  note.className = "hint";
+  note.textContent = "Basic mode. For fuller explanations and legal meanings (⚖️), open the notebook inside Claude.";
+  out.appendChild(note);
+}
+
+function renderDictResult(out, d) {
+  out.innerHTML = "";
+  const w = document.createElement("div"); w.className = "word";
+  w.textContent = (d.word || "") + (d.pos ? "  ·  " + d.pos : "");
+  out.append(w);
+  addDictBlock(out, "Meaning", d.explanation || d.definition || "");
+  if (d.korean) {
+    const kr = document.createElement("div"); kr.className = "kr"; kr.textContent = d.korean;
+    out.append(kr);
+  }
+  if (d.legal) addDictBlock(out, "⚖️ In law", d.legal);
+  if (d.example) addDictBlock(out, "Example", d.example);
+}
+function showDictError(out, text) {
+  out.innerHTML = "";
+  const msg = document.createElement("div");
+  msg.style.color = "#c14c4c"; msg.style.fontSize = "13px"; msg.style.lineHeight = "1.5";
+  msg.textContent = text;
+  out.append(msg);
+}
+function addDictBlock(parent, label, text) {
+  if (!text) return;
+  const l = document.createElement("div"); l.className = "label"; l.textContent = label;
+  const t = document.createElement("div"); t.textContent = text;
+  parent.append(l, t);
+}
+
+/* ============ Init ============ */
+$("addCourse").addEventListener("click", addCourse);
+loadData();
+</script>
+</body>
+</html>
