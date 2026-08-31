@@ -74,7 +74,15 @@ input,select,textarea{font-family:inherit;}
 
 .main{flex:1;min-width:0;padding:0 0 90px;}
 .course-band{height:5px;background:var(--c);}
-.wrap{max-width:1060px;margin:0 auto;padding:24px 34px;}
+.wrap{max-width:1100px;margin:0 auto;padding:24px clamp(18px,3vw,36px);}
+.main{overflow-x:clip;}
+/* 사이드바 닫힘 → 더 크게 보이고 중앙 배치 */
+.rail.closed ~ .main .wrap{max-width:1300px;padding-left:clamp(18px,3vw,36px);padding-right:clamp(18px,3vw,36px);}
+@media (max-width:1240px){.rail.closed ~ .main .wrap{padding-left:66px;padding-right:66px;}}
+@media (max-width:760px){.rail.closed ~ .main .wrap{padding-left:66px;padding-right:18px;}}
+/* 사이드바 열린 상태에서 화면이 좁으면 세션 목록을 좁히거나 위로 */
+@media (max-width:1260px){.read-grid{grid-template-columns:225px 1fr;gap:14px;}}
+@media (max-width:1080px){.read-grid{grid-template-columns:1fr;}.sess-col{position:relative;max-height:260px;}}
 
 /* ============ home ============ */
 .home-hero{margin:6px 0 22px;}
@@ -162,8 +170,10 @@ input,select,textarea{font-family:inherit;}
 .card.out .card-head{background:#f6efe7;}
 .card.out .card-head h3{color:#6d4a1f;}
 
-[contenteditable]{outline:none;min-height:26px;border-radius:6px;}
-[contenteditable]:focus{background:#fafbff;}
+[contenteditable]{outline:none;min-height:26px;border-radius:8px;padding:6px 12px;}
+[contenteditable]:focus{background:#fafbff;box-shadow:inset 0 0 0 1px var(--line);}
+.vtable [contenteditable],table.nt [contenteditable],.arg-item [contenteditable],h2.blk-title,h3.blk-title,.bp-name,.bp-cite,#eTitle,#ePages,.qa-q,.qa-a{padding:2px 6px;}
+[contenteditable] blockquote,[contenteditable] .callout,[contenteditable] ul,[contenteditable] ol{margin-left:4px;}
 [contenteditable]:empty:before{content:attr(data-ph);color:#adb4c2;font-style:italic;}
 mark{padding:1px 2px;border-radius:3px;}
 
@@ -225,7 +235,8 @@ hr.hr-deco::after{content:"✦";position:absolute;left:50%;top:50%;transform:tra
 /* 블록 서식 (모든 에디터 공통) */
 [contenteditable] h1{font-size:21px;margin:14px 0 6px;letter-spacing:-.01em;font-weight:800;}
 [contenteditable] h2{display:block;background:#f5edda;border-radius:9px;padding:6px 13px;font-size:14.5px;margin:12px 0 6px;font-weight:700;}
-[contenteditable] blockquote{border-left:3px solid var(--c);margin:10px 0;padding:6px 14px;background:var(--c-soft);border-radius:0 9px 9px 0;color:var(--ink);}
+[contenteditable] blockquote[style]{border:0;background:none;padding:0;margin:2px 0 2px 28px !important;}
+[contenteditable] blockquote:not([style]){border-left:3px solid var(--c);margin:10px 0;padding:6px 14px;background:var(--c-soft);border-radius:0 9px 9px 0;color:var(--ink);}
 [contenteditable] ul,[contenteditable] ol{padding-left:22px;margin:4px 0;}
 /* ============ cases tab ============ */
 .case-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
@@ -322,7 +333,7 @@ hr.hr-deco::after{content:"✦";position:absolute;left:50%;top:50%;transform:tra
 @keyframes sp{to{transform:rotate(360deg);}}
 
 /* ============ class notes ============ */
-.note-doc{min-height:430px;padding:8px 4px;font-size:15px;line-height:1.85;}
+.note-doc{min-height:430px;padding:18px 26px;font-size:15px;line-height:1.85;}
 .note-doc h1{font-size:23px;margin:16px 0 6px;letter-spacing:-.01em;}
 .note-doc h2{display:block;background:#f5edda;border-radius:9px;padding:7px 14px;font-size:15.5px;margin:13px 0 7px;font-weight:700;}
 .note-doc hr{border:0;border-top:2px solid var(--line);margin:15px 0;}
@@ -355,10 +366,14 @@ hr.hr-deco::after{content:"✦";position:absolute;left:50%;top:50%;transform:tra
 .bk{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
 .bk-head{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--bg);border-bottom:1px solid var(--line);}
 .bk-head h3{font-size:13.5px;}
-.bk-head .hint{font-size:11px;color:var(--ink2);margin-left:auto;font-weight:400;text-align:right;max-width:62%;line-height:1.4;}
+.bk-head .hint{font-size:11px;color:var(--ink2);margin-left:auto;font-weight:400;text-align:right;max-width:58%;line-height:1.4;}
+.bk-head .blk-tools{margin-left:8px;flex:0 0 auto;}
+.bk-head .hint+.blk-tools{margin-left:8px;}
+.bk-head h3+.blk-tools{margin-left:auto;}
 .bk-tag{font-size:10.5px;font-weight:800;color:#fff;letter-spacing:.06em;min-width:30px;padding:3px 7px;border-radius:6px;text-align:center;}
 .bk-body{padding:13px 16px;}
-.bk-ed{min-height:44px;}
+.bk-ed{min-height:44px;padding:10px 14px;}
+.bk-ko{margin-top:6px;font-size:12.5px;line-height:1.7;color:#4a5060;background:#f7f8fb;border-radius:7px;padding:6px 10px;min-height:30px;}
 .bk-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .bk-sub{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:4px;}
 .party{border-radius:10px;padding:10px 12px;}
@@ -446,12 +461,60 @@ hr.hr-deco::after{content:"✦";position:absolute;left:50%;top:50%;transform:tra
 .reader .op-ko{font-size:12.5px;color:#6b7280;background:none;padding:0 2px;}
 @media (max-width:900px){.concept{grid-template-columns:1fr;}}
 
+
+/* 표 */
+[contenteditable] table.nt,#printRoot table.nt{border-collapse:collapse;width:100%;table-layout:fixed;margin:10px 0;font-size:13.5px;}
+table.nt td,table.nt th{border:1px solid #cfd4dd;padding:6px 9px;vertical-align:top;min-width:40px;word-break:break-word;}
+table.nt th{background:#f1f3f7;font-weight:700;text-align:left;}
+table.nt td:empty::after,table.nt th:empty::after{content:"\00a0";}
+table.nt td:hover,table.nt th:hover{outline:1px solid var(--c);outline-offset:-1px;}
+table.nt.bold td,table.nt.bold th{border-color:#20242b;}
+table.nt.nb td,table.nt.nb th{border-color:transparent;}
+table.nt.zebra tr:nth-child(even) td{background:#f7f8fb;}
+.tbl-pick{display:grid;grid-template-columns:repeat(8,16px);gap:3px;}
+.tbl-pick span{width:16px;height:16px;border:1px solid var(--line);border-radius:3px;background:#fff;cursor:pointer;}
+.tbl-pick span.on{background:var(--c-soft);border-color:var(--c);}
+.tbl-tools{position:fixed;z-index:94;display:none;gap:3px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:9px;padding:4px 6px;box-shadow:0 6px 18px rgba(20,24,40,.14);font-size:12px;}
+.tbl-tools.show{display:flex;}
+.tbl-tools button{border:0;background:none;border-radius:6px;padding:4px 7px;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink);}
+.tbl-tools button:hover{background:var(--bg);color:var(--c);}
+@media print{.tbl-tools{display:none !important;}}
+
+
+.tl-row{display:grid;grid-template-columns:150px 1fr auto;gap:10px;align-items:start;padding:6px 0;border-left:2px solid var(--line);margin-left:6px;padding-left:12px;position:relative;}
+.tl-row::before{content:"";position:absolute;left:-6px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--c);}
+.tl-when{font-weight:800;font-size:13px;color:var(--c-deep);}
+.tl-what{font-size:13.5px;line-height:1.7;}
+
 #printRoot{display:none;}
 @media print{
-  @page{margin:15mm 13mm;}
-  body{background:#fff;font-size:11.5pt;}
+  @page{margin:12mm 10mm;size:A4;}
+  body{background:#fff;font-size:10.5pt;line-height:1.5;}
   .app,.toast,.veil,.rail-open{display:none !important;}
-  #printRoot{display:block;}
+  #printRoot{display:block;width:100%;}
+  #printRoot .p-brief{padding:0 !important;margin:0 0 20px !important;}
+  #printRoot .p-brief>table{width:100% !important;table-layout:fixed !important;font-size:10pt;}
+  #printRoot .p-brief>table>tbody>tr>td{padding:7px 8px !important;vertical-align:top;overflow-wrap:anywhere;word-break:break-word;white-space:normal;}
+  #printRoot .p-brief>table>tbody>tr>td:first-child{width:118px !important;padding-left:6px !important;white-space:nowrap;overflow:hidden;}
+  #printRoot .p-brief>table>tbody>tr>td:first-child span:last-child{white-space:normal;display:block;margin-top:3px;font-size:10pt;line-height:1.3;}
+  #printRoot table table{width:100% !important;table-layout:fixed !important;}
+  #printRoot td *,#printRoot .note-doc *{max-width:100% !important;white-space:normal !important;overflow-wrap:anywhere;}
+  #printRoot pre,#printRoot code{white-space:pre-wrap !important;}
+  #printRoot img{max-width:100% !important;height:auto !important;}
+  #printRoot [style*="width"]{max-width:100% !important;}
+  /* 화면 그대로 인쇄 */
+  .p-live .brief-page,.p-live .card,.p-live .sess-head{border:0 !important;border-radius:0 !important;padding:0 !important;box-shadow:none !important;background:#fff !important;}
+  .p-live .bk,.p-live .blk{page-break-inside:auto;break-inside:auto;margin-bottom:12px;border-radius:8px;}
+  .p-live .bk-head,.p-live .blk-head,.p-live h2,.p-live h3{page-break-after:avoid;break-after:avoid;}
+  .p-live .bk-head .hint,.p-live .blk-head .hint,.p-live .blk-hint{display:none !important;}
+  .p-live .p-empty{display:none !important;}
+  .p-live .bk-ed,.p-live .blk-ed,.p-live .c-body,.p-live .tl-what{page-break-inside:auto;}
+  .p-live *{-webkit-print-color-adjust:exact;print-color-adjust:exact;white-space:normal !important;overflow-wrap:anywhere;}
+  .p-live pre,.p-live code{white-space:pre-wrap !important;}
+  .p-live .tl-when,.p-live .bk-head h3,.p-live .blk-title{white-space:normal !important;}
+  .p-live [class]{max-width:100%;}
+  .p-live .bk-pair{grid-template-columns:1fr 1fr;}
+  .p-live .memos:empty,.p-live .memo-grid:empty{display:none;}
   #printRoot .p-brief{page-break-after:always;}
   #printRoot .p-brief:last-child{page-break-after:auto;}
   mark,.ik,.pages,.out-unit{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -794,7 +857,7 @@ function renderCases(c){
   const list=S.cases.filter(k=>k.courseId===c.id);
   let h=`<div class="ai-box"><h3>⚖️ AI 판례 검색 → 자동 브리프 <span class="hint" style="font-weight:400;">${esc((TPL[c.template]||TPL.irac).label)} 템플릿으로 생성</span></h3>
     <div class="ai-row"><input id="aiQ" placeholder="판례명 또는 사건번호 — 예: Vosburg v. Putney">
-      <select id="aiLang"><option value="en" ${S.settings.lang==="en"?"selected":""}>English</option><option value="ko" ${S.settings.lang==="ko"?"selected":""}>한국어</option><option value="both" ${S.settings.lang==="both"?"selected":""}>English + 한국어</option></select>
+      <select id="aiLang"><option value="en" ${S.settings.lang==="en"?"selected":""}>English</option><option value="ko" ${S.settings.lang==="ko"?"selected":""}>한국어</option><option value="both" ${S.settings.lang==="both"?"selected":""}>English + 한국어 (따로)</option></select>
       <button class="btn pri" id="aiGo" onclick="aiBrief()">브리프 생성</button></div>
     <div class="ai-note">생성된 브리프는 초안입니다 — 교재의 실제 판결문과 반드시 대조하세요. (Claude 안에서는 바로 작동, 일반 브라우저에서는 [설정]의 릴레이 주소 필요)</div></div>
   <div class="case-tools"><button class="btn" onclick="newCaseBlank('${c.id}')">＋ 직접 추가</button>
@@ -1053,13 +1116,36 @@ function rmCaseAtt(i){
 }
 
 /* ================= print ================= */
+/* 화면에 보이는 그대로 인쇄: 편집 UI만 걷어낸 복제본 */
+function liveClone(el){
+  const cl=el.cloneNode(true);
+  cl.querySelectorAll('button,.blk-tools,.memo-add,.fmtbar,.tbl-tools,.pdfframe,.sess-tools,.sess-col,.addblock,.linkish,select,input[type=file]').forEach(x=>x.remove());
+  cl.querySelectorAll('[contenteditable]').forEach(x=>{x.removeAttribute('contenteditable'); x.classList.add('p-ed'); if(!strip(x.innerHTML)&&!x.querySelector('img,table')){x.classList.add('p-empty');} x.removeAttribute('data-ph');});
+  cl.querySelectorAll('input[type=date],input[type=checkbox]').forEach(x=>{const sp=document.createElement('span');sp.textContent=x.type==='checkbox'?(x.checked?'☑ ':'☐ '):x.value;x.replaceWith(sp);});
+  cl.querySelectorAll('.empty').forEach(x=>(x.closest('tr')||x).remove());
+  cl.querySelectorAll('.hint,.memo-add').forEach(x=>x.remove());
+  // 빈 소제목(라벨만 있고 내용 없는 것) 정리
+  cl.querySelectorAll('.arg-col').forEach(col=>{if(!col.querySelector('.arg-item'))col.remove();});
+  cl.querySelectorAll('.arg-grid').forEach(g=>{if(!g.children.length)g.remove();});
+  cl.querySelectorAll('.p-empty').forEach(e=>{const prev=e.previousElementSibling; if(prev&&prev.classList.contains('bk-sub'))prev.remove(); e.remove();});
+  cl.querySelectorAll('.bk-pair>div,.bk-pair>*').forEach(d=>{if(!strip(d.innerHTML)||!d.querySelector('.bk-ed,[data-key],img'))d.remove();});
+  // 내용이 전혀 없는 블록은 빼기
+  const has=el=>strip(el.innerHTML)||el.querySelector('img');
+  cl.querySelectorAll('#caseCards').forEach(x=>x.closest('.blk')?.remove()); // 리딩노트 인쇄에 판례 블록 제외
+  cl.querySelectorAll('.bk,.blk,.card').forEach(b=>{if(b.querySelector('.bk,.blk'))return; const body=b.querySelector('.bk-body,.blk-body,.card-body'); if(!body)return;
+    const cells=[...body.querySelectorAll('.p-ed,tbody tr,img')];
+    if(!cells.some(has)&&!body.querySelector('img,tbody tr,.att,.pdfhead'))b.remove();});
+  cl.querySelectorAll('.memos').forEach(m=>{if(!m.querySelector('.memo,.pdfhead,.att,img')&&!strip((m.querySelector('#memoGrid,#attList,.memo-grid')||{innerHTML:''}).innerHTML))m.remove();});
+  cl.querySelectorAll('.memos').forEach(m=>{const g=m.querySelector('.memo-grid,#attList'); if(g&&!g.children.length)m.remove();});
+  return `<div class="p-live">${cl.outerHTML}</div>`;
+}
 function doPrint(){
   const pr=document.getElementById('printRoot'); const c=course(V.courseId);
   if(V.page==='home'){toast("과목 화면에서 내보낼 수 있습니다");return;}
   if(V.tab==='outline')pr.innerHTML=`<div class="outline-doc" style="border:0;">${renderOutline(c).replace(/^<div class="outline-doc">|<\/div>$/g,"")}</div>`;
-  else if(V.tab==='cases'&&V.caseId)pr.innerHTML=printBriefHTML(kase(V.caseId));
+  else if(V.tab==='cases'&&V.caseId){const el=document.querySelector('.brief-page'); if(!el){toast("브리프를 열어 주세요");return;} pr.innerHTML=liveClone(el);}
   else if(V.tab==='opinions'){const k=kase(V.opId); pr.innerHTML=k?`<div class="p-brief"><div style="font-family:var(--serif);font-size:20pt;font-weight:700;">${k.name}</div><div style="color:#666;font-size:10pt;margin:3px 0 14px;">${k.cite}</div>${k.opinion.map(p=>`<div style="margin-bottom:9px;font-size:11.5pt;line-height:1.7;">${p.en}${strip(p.ko)?`<div style="font-size:9pt;color:#666;margin-top:2px;">${p.ko}</div>`:""}</div>`).join("")}</div>`:"";}
-  else if(V.tab==='read'){const s=sess(c,V.sessionId); pr.innerHTML=printSessHTML(c,s);}
+  else if(V.tab==='read'){const el=document.querySelector('.read-grid>div:last-child'); const s=sess(c,V.sessionId); pr.innerHTML=el&&s?liveClone(el):printSessHTML(c,s);}
   else if(V.tab==='notes'){
     const n=(c.notes||[]).find(x=>x.id===V.noteId);
     if(!n){toast("내보낼 노트가 없습니다");return;}
@@ -1093,7 +1179,7 @@ document.getElementById('gsearch').addEventListener('input',e=>{
     if(hay.includes(q))hits.push({t:strip(n.title)||"(제목 없음)",w:`${c.name} · 수업노트`,go:()=>{go('course',c.id,'notes');V.noteId=n.id;render();}});
   }));
   S.cases.forEach(k=>{
-    const hay=(strip(k.name)+" "+strip(k.cite)+" "+strip(k.facts)+" "+strip(k.rule)+" "+strip(k.issue)+" "+strip(k.analysis)+" "+Object.values(k.fields||{}).map(strip).join(" ")+" "+(k.vocab||[]).map(v=>strip(v.term)).join(" ")).toLowerCase();
+    const hay=(strip(k.name)+" "+strip(k.cite)+" "+strip(k.facts)+" "+strip(k.rule)+" "+strip(k.issue)+" "+strip(k.analysis)+" "+Object.values(k.fields||{}).map(strip).join(" ")+" "+(k.vocab||[]).map(v=>strip(v.term)).join(" ")+" "+(k.timeline||[]).map(t=>strip(t.what)).join(" ")).toLowerCase();
     if(hay.includes(q)){const cn=(course(k.courseId)||{}).name||"미분류";
       hits.push({t:strip(k.name)||"(제목 없음)",w:`${cn} · 판례`,go:()=>openBrief(k.id)});}
   });
@@ -1247,7 +1333,8 @@ function mkCase(courseId,tpl){
 }
 function normCase(k){
   if(!k.tpl){const c=course(k.courseId);k.tpl=(c&&c.template)||"irac";}
-  if(!k.fields)k.fields={}; if(!k.vocab)k.vocab=[]; if(!k.opinion)k.opinion=[];
+  if(!k.fields)k.fields={}; if(!k.ko)k.ko={}; if(!k.vocab)k.vocab=[]; if(!k.opinion)k.opinion=[];
+  if(k.koOn===undefined)k.koOn=Object.values(k.ko).some(v=>strip(v||""));
   if(!k.args)k.args={pa:[],px:[],da:[],dx:[]}; if(!k.memos)k.memos=[]; if(!k.atts)k.atts=[];
 }
 const getF=(k,key)=>CORE.includes(key)?(k[key]||""):((k.fields||{})[key]||"");
@@ -1257,12 +1344,14 @@ const setF=(k,key,v)=>{if(CORE.includes(key))k[key]=v;else{if(!k.fields)k.fields
    key가 CORE(facts/issue/rule/analysis/concl)면 k에 직접, 아니면 k.fields에 저장 — 템플릿을 바꿔도 내용은 남는다 */
 const TPL={
   irac:{label:"IRAC (기본)",blocks:[
+    {type:"timeline",t:"Timeline — 사실관계 순서대로",tag:"T",col:"#1f5f8b",hint:"날짜/순서 + 무슨 일 — 교재 사실 그대로. 발표 때 이 순서로 말하기"},
     {type:"field",key:"facts",t:"Facts",tag:"F",col:"#5f6b7a",ph:"사실관계"},
     {type:"field",key:"issue",t:"Issue",tag:"I",col:"var(--c)",ph:"쟁점"},
     {type:"field",key:"rule",t:"Rule",tag:"R",col:"#c98b1e",ph:"법리"},
     {type:"field",key:"analysis",t:"Analysis",tag:"A",col:"#4d5fa8",ph:"적용·추론"},
     {type:"field",key:"concl",t:"Conclusion",tag:"C",col:"#8c5fa8",ph:"결론"}]},
   torts:{label:"Torts (Barrera-Rojas)",blocks:[
+    {type:"timeline",t:"Timeline — 사실관계 순서대로",tag:"T",col:"#1f5f8b",hint:"날짜/순서 + 무슨 일 — 교재 사실 그대로. 발표 때 이 순서로 말하기"},
     {type:"field",key:"facts",t:"Recite the facts",tag:"1",col:"#0f6b5c",hint:"\"What are the facts in the case?\" — 호명되면 그대로 읽을 문장. 누가·무엇을·어떻게·소송 경위·하급심 결과 순서로",ph:"In this case, the plaintiff … The defendant … The trial court …"},
     {type:"pair",keys:["relFacts","irrFacts"],t:"Relevant vs. Irrelevant facts",tag:"1'",col:"#0f6b5c",hint:"Relevant fact 위주로 파고들기 — 결론을 바꾸는 사실만 왼쪽에",labels:["Relevant (결정적 사실)","Irrelevant (배경일 뿐)"],ph:["① … ② … — 이 사실이 없으면 결론이 달라지는가?","날짜·지명·금액 등 결론과 무관한 것"]},
     {type:"pair",keys:["concl","rule"],t:"Holding",tag:"2",col:"#b3541e",hint:"Result(누가 이겼고 처분은 무엇인지) + Rule of law(법원이 세운 규칙을 요건으로)",labels:["Result (결과)","Rule of law (법리)"],ph:["Judgment for … / affirmed / reversed and remanded","Rule = ① … ② … ③ …"]},
@@ -1273,6 +1362,7 @@ const TPL={
   contracts:{label:"Contracts (Grenardo)",blocks:[
     {type:"parties",t:"Parties & stance",tag:"P/D",col:"#5b3d8f",hint:"원고·피고가 누구인지, 각자의 간략한 입장"},
     {type:"field",key:"facts",t:"Facts — 발표용 낭독문",tag:"F",col:"#5f6b7a",hint:"호명됐을 때 자신 있게 읽을 수 있게 완성된 문장으로",ph:"The plaintiff, [who], … The defendant, [who], … They agreed that … The dispute arose when … The trial court …"},
+    {type:"timeline",t:"Timeline — 사실관계 순서대로",tag:"T",col:"#1f5f8b",hint:"날짜/순서 + 무슨 일 — 교재 사실 그대로. 발표 때 이 순서로 말하기"},
     {type:"vocab",t:"단어장 — 이 판례의 용어",tag:"V",col:"#0f6b5c",hint:"단어 하나하나 뜻 파고들기. 본문에서 단어를 드래그 → 📖 사전 → ＋단어장"},
     {type:"field",key:"issue",t:"Issue",tag:"I",col:"var(--c)",ph:"Whether … when …"},
     {type:"field",key:"rule",t:"Rule",tag:"R",col:"#c98b1e",ph:"Rest. § … / 판례법리 — 요건별로 ①②③"},
@@ -1280,7 +1370,8 @@ const TPL={
     {type:"field",key:"concl",t:"Conclusion",tag:"C",col:"#8c5fa8",ph:"결론과 처분(affirmed/reversed)"},
     {type:"opinion",t:"판결문 원문 + 한국어 번역",tag:"Op",col:"#1f5f8b",hint:"영어 원문 문단 아래에 작은 한국어 번역 — 한 문장씩 뜻을 확인하며 읽기"},
     {type:"args",t:"양측 주장 — 판례에서 나온 것 / 추가로 낼 수 있는 것",tag:"Arg",col:"#b3541e",hint:"원고·피고가 실제로 편 주장과, 더 낼 수 있었던 주장을 구분"},
-    {type:"pair",keys:["critP","critD"],t:"어떻게 했었어야 했나 — 변호사 잘잘못",tag:"★",col:"#8c2f4f",hint:"양쪽 변호사가 잘한 것·놓친 것",labels:["원고 측 변호사","피고 측 변호사"],ph:["잘한 점 / 놓친 점 / 이렇게 했어야","잘한 점 / 놓친 점 / 이렇게 했어야"]}]}
+    {type:"pair",keys:["critP","critD"],t:"어떻게 했었어야 했나 — 변호사 잘잘못",tag:"★",col:"#8c2f4f",hint:"양쪽 변호사가 잘한 것·놓친 것",labels:["원고 측 변호사","피고 측 변호사"],ph:["잘한 점 / 놓친 점 / 이렇게 했어야","잘한 점 / 놓친 점 / 이렇게 했어야"]},
+    {type:"field",key:"notesQ",t:"교재 Notes 기반 예상 질문 & 답",tag:"Q",col:"#946200",hint:"판례 뒤 Notes/Problems에서 나올 고난도 질문 — 질문 → 내 답 → 교재 근거(페이지)",ph:"Q1. … (Knapp p.__ Note 3)\nA. …"}]}
 };
 const tplOf=k=>TPL[k.tpl]||TPL.irac;
 
@@ -1288,20 +1379,28 @@ const tplOf=k=>TPL[k.tpl]||TPL.irac;
 function blockHead(b){
   return `<div class="bk-head"><span class="bk-tag" style="background:${b.col}">${esc(b.tag)}</span><h3>${esc(b.t)}</h3>${b.hint?`<span class="hint">${esc(b.hint)}</span>`:""}</div>`;
 }
-function renderBlock(k,b,i){
+function tplOrder(t){ if(!S.tplOrder)S.tplOrder={}; const n=TPL[t].blocks.length; let o=S.tplOrder[t]; if(!o||o.length!==n||o.some(x=>x<0||x>=n)||new Set(o).size!==n){ o=[...Array(n).keys()]; S.tplOrder[t]=o; } return o; }
+function mvBk(t,pos,d){ const o=tplOrder(t); const j=pos+d; if(j<0||j>=o.length)return; [o[pos],o[j]]=[o[j],o[pos]]; save(); render(); }
+function resetBk(t){ if(!S.tplOrder)S.tplOrder={}; delete S.tplOrder[t]; save(); render(); toast("기본 순서로"); }
+function renderBlock(k,b,i,pos,n){
   let body="";
+  const koBox=key=>k.koOn?`<div contenteditable class="bk-ko" data-ko="${key}" data-ph="한국어 — 직접 쓰거나 위 칸을 [한국어로 번역]">${k.ko[key]||""}</div>`:"";
   if(b.type==="field"){
-    body=`<div contenteditable class="bk-ed" data-key="${b.key}" data-ph="${esc(b.ph||"")}">${getF(k,b.key)}</div>`;
+    body=`<div contenteditable class="bk-ed" data-key="${b.key}" data-ph="${esc(b.ph||"")}">${getF(k,b.key)}</div>${koBox(b.key)}`;
   }else if(b.type==="pair"){
     body=`<div class="bk-pair">${b.keys.map((key,j)=>`<div><div class="bk-sub">${esc(b.labels[j])}</div>
-      <div contenteditable class="bk-ed" data-key="${key}" data-ph="${esc(b.ph[j]||"")}">${getF(k,key)}</div></div>`).join("")}</div>`;
+      <div contenteditable class="bk-ed" data-key="${key}" data-ph="${esc(b.ph[j]||"")}">${getF(k,key)}</div>${koBox(key)}</div>`).join("")}</div>`;
   }else if(b.type==="parties"){
     body=`<div class="bk-pair">
       <div class="party p"><div class="bk-sub">Plaintiff (원고) — 누구?</div><div contenteditable class="bk-ed" data-key="pWho" data-ph="예: Burch, 주택 구매자">${getF(k,"pWho")}</div>
-        <div class="bk-sub">원고의 입장</div><div contenteditable class="bk-ed" data-key="pStance" data-ph="한 줄: 무엇을 주장하며 무엇을 원하는가">${getF(k,"pStance")}</div></div>
+        <div class="bk-sub">원고의 입장</div><div contenteditable class="bk-ed" data-key="pStance" data-ph="한 줄: 무엇을 주장하며 무엇을 원하는가">${getF(k,"pStance")}</div>${koBox("pStance")}</div>
       <div class="party d"><div class="bk-sub">Defendant (피고) — 누구?</div><div contenteditable class="bk-ed" data-key="dWho" data-ph="예: 건설사">${getF(k,"dWho")}</div>
-        <div class="bk-sub">피고의 입장</div><div contenteditable class="bk-ed" data-key="dStance" data-ph="한 줄: 어떤 항변을 하는가">${getF(k,"dStance")}</div></div></div>
+        <div class="bk-sub">피고의 입장</div><div contenteditable class="bk-ed" data-key="dStance" data-ph="한 줄: 어떤 항변을 하는가">${getF(k,"dStance")}</div>${koBox("dStance")}</div></div>
       <div class="bk-sub" style="margin-top:10px;">Procedural posture (소송 경위)</div><div contenteditable class="bk-ed" data-key="posture" data-ph="누가 소를 제기 → 하급심 결과 → 누가 항소">${getF(k,"posture")}</div>`;
+  }else if(b.type==="timeline"){
+    if(!k.timeline)k.timeline=[];
+    body=`<div class="tl">${k.timeline.map((it,i)=>`<div class="tl-row"><div class="tl-when" contenteditable data-tl="${i}" data-k="when" data-ph="날짜/순서">${it.when||""}</div><div class="tl-what" contenteditable data-tl="${i}" data-k="what" data-ph="무슨 일이 있었나 (교재 표현 그대로)">${it.what||""}</div><button class="rm" onclick="rmTL(${i})">✕</button></div>`).join("")}</div>
+      <button class="chip add" onclick="addTL()">＋ 항목</button>`;
   }else if(b.type==="vocab"){
     body=`<div id="vocabBox"></div>`;
   }else if(b.type==="opinion"){
@@ -1309,7 +1408,8 @@ function renderBlock(k,b,i){
   }else if(b.type==="args"){
     body=`<div id="argBox"></div>`;
   }
-  return `<div class="bk" data-bi="${i}">${blockHead(b)}<div class="bk-body">${body}</div></div>`;
+  const tools=pos===undefined?"":`<span class="blk-tools"><button class="mini" onclick="mvBk('${k.tpl}',${pos},-1)" title="위로">▲</button><button class="mini" onclick="mvBk('${k.tpl}',${pos},1)" title="아래로">▼</button></span>`;
+  return `<div class="bk" data-bi="${i}">${blockHead(b).replace('</div>',tools+'</div>')}<div class="bk-body">${body}</div></div>`;
 }
 function renderBrief(c){
   const k=kase(V.caseId); if(!k){V.caseId=null;return renderCases(c);}
@@ -1317,7 +1417,7 @@ function renderBrief(c){
   const linked=[]; S.courses.forEach(cc=>cc.sessions.forEach(s=>{if(s.cases.includes(k.id))linked.push(`${cc.name} · ${strip(s.title)}`);}));
   const tpl=tplOf(k);
   return `<button class="btn" onclick="V.caseId=null;render()" style="margin-bottom:13px;">← 판례 목록</button>
-  ${fmtBarHTML(`<label class="tpl-pick">템플릿 <select id="bTpl">${Object.entries(TPL).map(([id,t])=>`<option value="${id}" ${k.tpl===id?'selected':''}>${esc(t.label)}</option>`).join("")}</select></label>
+  ${fmtBarHTML(`<button class="btn" onclick="toggleKo()">${k.koOn?"한국어 칸 숨기기":"한국어 칸 보이기"}</button><button class="btn" id="koAI" onclick="aiTranslateBrief()">✨ 한국어로 번역</button><button class="btn" onclick="resetBk('${k.tpl}')" title="블록 순서를 템플릿 기본으로">순서 초기화</button><label class="tpl-pick">템플릿 <select id="bTpl">${Object.entries(TPL).map(([id,t])=>`<option value="${id}" ${k.tpl===id?'selected':''}>${esc(t.label)}</option>`).join("")}</select></label>
     <button class="btn danger" onclick="delBrief('${k.id}')">브리프 삭제</button>`)}
   <div class="brief-page">
     <div class="bp-top"><div style="flex:1">
@@ -1325,7 +1425,7 @@ function renderBrief(c){
       <div class="bp-cite" contenteditable id="bCite" data-ph="Court · Year · Casebook p.">${k.cite}</div>
       ${linked.length?`<div style="font-size:11.5px;color:var(--ink2);margin-top:6px;">연결: ${esc(linked.join("  |  "))}</div>`:""}
     </div></div>
-    <div class="bk-list">${tpl.blocks.map((b,i)=>renderBlock(k,b,i)).join("")}</div>
+    <div class="bk-list">${tplOrder(k.tpl).map((bi,pos)=>renderBlock(k,tpl.blocks[bi],bi,pos,tpl.blocks.length)).join("")}</div>
     <div class="memos"><h4>Memos</h4><div class="memo-grid" id="memoGrid"></div>
       <div class="memo-add">
         <button class="btn" onclick="addMemo('prof')">＋ 교수 코멘트</button>
@@ -1341,12 +1441,34 @@ function bindBrief(){
   const bind=(id,key)=>{const el=document.getElementById(id); if(!el)return; el.addEventListener('input',()=>{k[key]=el.innerHTML;save();});};
   bind('bName','name'); bind('bCite','cite');
   document.querySelectorAll('.bk-ed[data-key]').forEach(el=>{el.addEventListener('input',()=>{setF(k,el.dataset.key,el.innerHTML);save();});});
+  document.querySelectorAll('.bk-ko[data-ko]').forEach(el=>{el.addEventListener('input',()=>{k.ko[el.dataset.ko]=el.innerHTML;save();});});
+  document.querySelectorAll('[data-tl]').forEach(el=>{el.addEventListener('input',()=>{k.timeline[+el.dataset.tl][el.dataset.k]=el.innerHTML;save();});});
   const ts=document.getElementById('bTpl'); if(ts)ts.onchange=()=>{k.tpl=ts.value;save();render();toast("템플릿을 바꿨습니다 — 내용은 그대로 남아 있어요");};
   bindFmtBar();
   renderMemos(k); renderCaseAtts(k);
   renderVocab(k); renderOpinion(k); renderArgs(k);
 }
 
+function addTL(){const k=kase(V.caseId); if(!k.timeline)k.timeline=[]; k.timeline.push({when:"",what:""}); save(); render(); setTimeout(()=>{const els=document.querySelectorAll('.tl-when'); els[els.length-1]?.focus();},30);}
+function rmTL(i){const k=kase(V.caseId); k.timeline.splice(i,1); save(); render();}
+function toggleKo(){const k=kase(V.caseId); k.koOn=!k.koOn; save(); render();}
+function briefKeys(k){const keys=[]; tplOf(k).blocks.forEach(b=>{if(b.type==="field")keys.push(b.key); else if(b.type==="pair")keys.push(...b.keys); else if(b.type==="parties")keys.push("pStance","dStance");}); return keys;}
+async function aiTranslateBrief(){
+  const k=kase(V.caseId); const btn=document.getElementById('koAI');
+  const src={}; briefKeys(k).forEach(key=>{const v=strip(getF(k,key)); if(v&&!strip(k.ko[key]||""))src[key]=v;});
+  const keys=Object.keys(src); if(!keys.length){toast("번역할 칸이 없어요 (비었거나 이미 번역됨)");return;}
+  btn.innerHTML='<span class="spin"></span> 번역 중…'; btn.disabled=true;
+  try{
+    /* 토큰 한도 → 칸을 몇 개씩 나눠서 */
+    let batch={},len=0,done=0;
+    const flush=async()=>{const ks=Object.keys(batch); if(!ks.length)return;
+      const j=await aiJSON(`Translate each value into natural, precise Korean for a Korean law student (keep legal terms of art in English in parentheses on first use). Respond with ONLY a JSON object with the same keys: ${JSON.stringify(batch)}`);
+      ks.forEach(key=>{if(j[key])k.ko[key]=esc(j[key]);}); done+=ks.length; save(); batch={};len=0;
+      const b=document.getElementById('koAI'); if(b)b.innerHTML=`<span class="spin"></span> ${done}/${keys.length}`;};
+    for(const key of keys){ if(len&&len+src[key].length>1100)await flush(); batch[key]=src[key]; len+=src[key].length; }
+    await flush(); k.koOn=true; save(); render(); toast("한국어 번역을 넣었습니다");
+  }catch(e){aiErr(e); const b=document.getElementById('koAI'); if(b){b.textContent="✨ 한국어로 번역";b.disabled=false;}}
+}
 /* ---------- 단어장 ---------- */
 function renderVocab(k){
   const box=document.getElementById('vocabBox'); if(!box)return;
@@ -1506,9 +1628,9 @@ async function aiBrief(){
   const lang=document.getElementById('aiLang').value; S.settings.lang=lang;
   const c=course(V.courseId); const tpl=(c&&c.template)||"irac";
   const btn=document.getElementById('aiGo'); btn.innerHTML='<span class="spin"></span> 검색 중…'; btn.disabled=true;
-  const langLine=lang==='ko'?"Write every field in Korean.":lang==='both'?"Write every field as English first, then a blank line, then the Korean translation.":"Write every field in English.";
+  const langLine=lang==='ko'?"Write every field in Korean.":"Write every field in English.";
   try{
-    const j=await aiJSON(`Find the real court opinion for: "${q}". Use web search to verify the actual case. Then respond with ONLY a JSON object, no markdown fences, no preamble:\n${BRIEF_PROMPT[tpl]}\n${langLine} Keep each field under ${lang==='both'?(tpl==='irac'?60:40):(tpl==='irac'?110:70)} words. If you cannot verify the case exists, return {"error":"not found"}.`,true);
+    const j=await aiJSON(`Find the real court opinion for: "${q}". Use web search to verify the actual case. Then respond with ONLY a JSON object, no markdown fences, no preamble:\n${BRIEF_PROMPT[tpl]}\n${langLine} Keep each field under ${tpl==='irac'?110:70} words. If you cannot verify the case exists, return {"error":"not found"}.`,true);
     if(j.error){toast("판례를 찾지 못했습니다 — 이름/철자를 확인해 보세요");}
     else{
       const k=mkCase(V.courseId,tpl);
@@ -1516,7 +1638,8 @@ async function aiBrief(){
       if(!k.name)k.name=esc(q);
       k.memos.push({type:"mine",text:"AI 초안 — 교재 판결문과 대조할 것"});
       S.cases.push(k); save(); openBrief(k.id); toast("브리프 초안이 생성되었습니다");
-      if(tpl==='contracts'){ setTimeout(async()=>{ try{ await aiArgs(); }catch(e){} },300); }
+      if(lang==='both'){ setTimeout(async()=>{ try{ await aiTranslateBrief(); }catch(e){} },200); }
+      if(tpl==='contracts'){ setTimeout(async()=>{ try{ await aiArgs(); }catch(e){} },lang==='both'?400:300); }
     }
   }catch(e){aiErr(e);}
   const b2=document.getElementById('aiGo'); if(b2){b2.textContent="브리프 생성";b2.disabled=false;}
@@ -1608,21 +1731,34 @@ function renderCaseCards(s){
 function printBriefHTML(k){
   if(!k)return""; normCase(k);
   const tpl=tplOf(k);
-  const row=(l,v)=>strip(v)?`<tr><td style="width:120px;font-weight:800;font-size:9.5pt;text-transform:uppercase;letter-spacing:.06em;vertical-align:top;padding:6px 10px 6px 0;">${l}</td><td style="padding:6px 0;">${v}</td></tr>`:"";
+  const row=(l,v,key,b)=>{
+    if(!strip(v))return"";
+    const tag=b?.tag||"";
+    const bgColor=b?.col||"#f5f5f5";
+    const tagBg=(b?.col||"#5f6b7a").replace("var(--c)","#5b3d8f");
+    const labelBg=`${tagBg}1a`; /* 약 9% 불투명도 */
+    return `<tr style="border-bottom:1px solid #d1d5db;border-top:none;border-left:4px solid ${bgColor.includes("var(--c)")?tagBg:bgColor};print-color-adjust:exact;-webkit-print-color-adjust:exact;">
+      <td style="width:118px;padding:10px 14px 10px 0;vertical-align:top;background:${labelBg};print-color-adjust:exact;-webkit-print-color-adjust:exact;">
+        ${tag?`<span style="display:inline-block;background:${tagBg};color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-right:6px;print-color-adjust:exact;-webkit-print-color-adjust:exact;">${tag}</span>`:""}<span style="font-weight:800;font-size:10pt;letter-spacing:.02em;color:#1f2937;">${l}</span>
+      </td>
+      <td style="padding:10px 14px 10px 0;vertical-align:top;font-size:11pt;line-height:1.8;color:#374151;">${v}${key&&strip(k.ko[key]||"")?`<div style="font-size:9.5pt;color:#666;margin-top:4px;line-height:1.6;">${k.ko[key]}</div>`:""}</td>
+    </tr>`;
+  };
   let rows="";
-  tpl.blocks.forEach(b=>{
-    if(b.type==="field")rows+=row(b.t,getF(k,b.key));
-    else if(b.type==="pair")b.keys.forEach((key,j)=>rows+=row(b.labels[j],getF(k,key)));
+  tplOrder(k.tpl).map(bi=>tpl.blocks[bi]).forEach(b=>{
+    if(b.type==="field")rows+=row(b.t,getF(k,b.key),b.key,b);
+    else if(b.type==="pair")b.keys.forEach((key,j)=>rows+=row(b.labels[j],getF(k,key),key,b));
+    else if(b.type==="timeline"&&(k.timeline||[]).length)rows+=row("Timeline",`<table style="border-collapse:collapse;font-size:10.5pt;width:100%;">${k.timeline.map(it=>`<tr><td style="padding:3px 10px 3px 0;font-weight:700;white-space:nowrap;vertical-align:top;width:120px;">${it.when}</td><td style="padding:3px 0;line-height:1.6;">${it.what}</td></tr>`).join("")}</table>`,null,b);
     else if(b.type==="parties"){rows+=row("Plaintiff",[getF(k,"pWho"),getF(k,"pStance")].filter(strip).join(" — "));rows+=row("Defendant",[getF(k,"dWho"),getF(k,"dStance")].filter(strip).join(" — "));rows+=row("Posture",getF(k,"posture"));}
-    else if(b.type==="vocab"&&k.vocab.length)rows+=row("단어장",`<table style="width:100%;border-collapse:collapse;font-size:10pt;">${k.vocab.map(v=>`<tr><td style="padding:2px 8px 2px 0;font-weight:700;vertical-align:top;white-space:nowrap;">${v.term}</td><td style="padding:2px 8px 2px 0;">${v.en}</td><td style="padding:2px 0;color:#444;">${v.ko}${strip(v.note)?` <span style="color:#888">(${v.note})</span>`:""}</td></tr>`).join("")}</table>`);
+    else if(b.type==="vocab"&&k.vocab.length)rows+=row("단어장",`<table style="width:100%;border-collapse:collapse;font-size:10pt;">${k.vocab.map(v=>`<tr><td style="padding:3px 8px 3px 0;font-weight:700;vertical-align:top;white-space:nowrap;width:100px;">${v.term}</td><td style="padding:3px 8px 3px 0;width:100px;">${v.en}</td><td style="padding:3px 0;color:#555;">${v.ko}${strip(v.note)?` <span style="color:#999;font-size:9pt;">(${v.note})</span>`:""}</td></tr>`).join("")}</table>`,null,b);
     else if(b.type==="args"&&["pa","px","da","dx"].some(x=>k.args[x].length))rows+=row("Arguments",ARG.map(([key,label])=>k.args[key].length?`<div style="margin-bottom:5px;"><b>${label}</b><ul style="margin:2px 0 0 16px;padding:0;">${k.args[key].map(a=>`<li>${a}</li>`).join("")}</ul></div>`:"").join(""));
     else if(b.type==="opinion"&&k.opinion.length)rows+=row("Opinion",k.opinion.map((p,i)=>`<div style="margin-bottom:7px;"><div>${p.en}</div>${strip(p.ko)?`<div style="font-size:9pt;color:#555;margin-top:1px;">${p.ko}</div>`:""}</div>`).join(""));
   });
-  return `<div class="p-brief">
-    <div style="font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:#777;">${esc(tpl.label)}</div>
-    <div style="font-family:var(--serif);font-size:20pt;font-weight:700;">${k.name||""}</div>
-    <div style="color:#666;font-size:10pt;margin:3px 0 14px;">${k.cite||""}</div>
-    <table style="width:100%;border-collapse:collapse;font-size:11.5pt;line-height:1.7;">${rows}</table>
+  return `<div class="p-brief" style="padding:24px;page-break-inside:avoid;">
+    <div style="font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:8px;">${esc(tpl.label)}</div>
+    <div style="font-family:var(--serif);font-size:22pt;font-weight:700;line-height:1.3;margin-bottom:2px;">${k.name||""}</div>
+    <div style="color:#777;font-size:10.5pt;margin-bottom:16px;border-bottom:1px solid #e5e7eb;padding-bottom:12px;">${k.cite||""}</div>
+    <table style="width:100%;border-collapse:collapse;print-color-adjust:exact;-webkit-print-color-adjust:exact;border:1px solid #d1d5db;border-radius:6px;overflow:hidden;">${rows}</table>
     ${k.memos&&k.memos.length?`<div style="margin-top:14px;font-size:10.5pt;">${k.memos.map(m=>`<div style="margin-bottom:4px;">☞ <b>${(MEMO[m.type]||MEMO.mine).label}:</b> ${m.text}</div>`).join("")}</div>`:""}
   </div>`;
 }
@@ -1732,7 +1868,7 @@ function printSessHTML(c,s){
     else if(b.type==="concepts"){if(b.items.length)h+=H(esc(b.title))+b.items.map(it=>`<div style="margin-bottom:6px;"><b>${it.name}</b><div>${it.body}</div></div>`).join("");}
     else if(b.type==="terms"){if(b.items.length)h+=H(esc(b.title))+`<table style="width:100%;border-collapse:collapse;font-size:10pt;">${b.items.map(it=>`<tr><td style="padding:2px 8px 2px 0;font-weight:700;vertical-align:top;white-space:nowrap;">${it.term}</td><td style="padding:2px 8px 2px 0;">${it.en}</td><td style="padding:2px 0;color:#444;">${it.ko}</td></tr>`).join("")}</table>`;}
     else if(b.type==="cold"){if(s.cold.length)h+=H(esc(b.title))+s.cold.map(q=>`<div style="margin:5px 0;"><b>Q.</b> ${q.q}<br><b>A.</b> ${q.a}</div>`).join("");}
-    else if(b.type==="cases"){const br=s.cases.map(id=>kase(id)).filter(Boolean).map(k=>printBriefHTML(k).replace('class="p-brief"','class="p-brief" style="margin-top:10px;border-top:1px solid #ccc;padding-top:8px;"')).join(""); if(br)h+=H(esc(b.title))+br;}
+    else if(b.type==="cases"){ /* 판례 브리프는 리딩노트 인쇄에 포함하지 않음 — [판례] 탭에서 따로 인쇄 */ }
   });
   if(strip(s.outline||""))h+=H("아웃라인 한 줄")+`<div>${s.outline}</div>`;
   return h+`</div>`;
@@ -1890,10 +2026,31 @@ function bindRichBar(opts){
     const st=bar.querySelector('[data-tb="strike"]'); if(st)st.classList.toggle('on',document.queryCommandState('strikeThrough'));};
   document.addEventListener('selectionchange',refresh);
 }
-function applySize(px){ const ed=activeEd(); if(!ed)return; ed.focus();
+function applySize(px){
+  const ed=activeEd(); if(!ed)return; ed.focus();
+  const sel=getSelection(); if(!sel.rangeCount)return;
+  if(sel.isCollapsed){ /* 드래그 안 했으면 현재 줄 전체 */
+    let n=sel.anchorNode; if(n.nodeType===3)n=n.parentNode;
+    const blk=n.closest('li,p,h1,h2,h3,blockquote,td,div'); if(!blk||blk===ed||!ed.contains(blk)){toast("크기를 바꿀 부분을 드래그하세요");return;}
+    blk.style.fontSize=px+'px'; blk.querySelectorAll('[style]').forEach(x=>x.style.removeProperty('font-size')); edChanged(); return;
+  }
+  document.execCommand('styleWithCSS',false,false);
   document.execCommand('fontSize',false,'7');
-  ed.querySelectorAll('font[size="7"]').forEach(f=>{const sp=document.createElement('span'); sp.style.fontSize=px+'px'; sp.innerHTML=f.innerHTML; f.replaceWith(sp);});
-  edChanged(); }
+  document.execCommand('styleWithCSS',false,true);
+  const made=[];
+  ed.querySelectorAll('font[size="7"]').forEach(f=>{const sp=document.createElement('span'); sp.style.fontSize=px+'px'; sp.innerHTML=f.innerHTML; made.push(sp);
+    sp.querySelectorAll('[style]').forEach(x=>{x.style.removeProperty('font-size'); if(!x.getAttribute('style'))x.removeAttribute('style');});
+    sp.querySelectorAll('font[size]').forEach(x=>x.replaceWith(...x.childNodes));
+    f.replaceWith(sp);});
+  ed.querySelectorAll('span[style*="font-size: xxx-large"],span[style*="font-size:xxx-large"]').forEach(x=>{x.style.fontSize=px+'px';made.push(x);});
+  if(made.length){const r=document.createRange(); r.setStart(made[0],0); const L=made[made.length-1]; r.setEnd(L,L.childNodes.length); sel.removeAllRanges(); sel.addRange(r);}
+  edChanged();
+}
+function syncSizeBox(){ const inp=document.getElementById('rbSize'); if(!inp||document.activeElement===inp)return;
+  const sel=getSelection(); if(!sel.rangeCount)return; const r=sel.getRangeAt(0); let n=r.startContainer; if(!n)return;
+  if(n.nodeType!==3&&n.childNodes[r.startOffset])n=n.childNodes[r.startOffset]; if(n.nodeType===3)n=n.parentNode;
+  if(!n.closest||!n.closest('[contenteditable]'))return; inp.value=Math.round(parseFloat(getComputedStyle(n).fontSize))||15; }
+document.addEventListener('selectionchange',syncSizeBox);
 function insertHTML(html){const ed=activeEd(); if(!ed)return; ed.focus(); document.execCommand('insertHTML',false,html); edChanged();}
 /* 블록 요소(구분선·박스·PDF)는 현재 줄 뒤에 통째로 끼워넣기 — 줄 중간에서 깨지지 않게 */
 function insertBlock(html){
@@ -1955,6 +2112,216 @@ document.addEventListener('keydown',e=>{
   if(blk&&ed.contains(blk)){ if(isEmpty(blk)){ e.preventDefault(); const p=document.createElement('div'); p.innerHTML='<br>'; blk.replaceWith(p);
       const rr=document.createRange(); rr.setStart(p,0); rr.collapse(true); sel.removeAllRanges(); sel.addRange(rr); ed.dispatchEvent(new Event('input',{bubbles:true})); return; }
     if(blk.tagName!=='BLOCKQUOTE'&&atEnd(blk)){ exitTo(blk); return; } }
+});
+
+/* ================= 에디터 보강: 제목·블록 배경·표·기호 ================= */
+SYM_GROUPS.length=0;
+SYM_GROUPS.push(
+  ["자주 씀","※ ☞ → ⇒ ↳ ① ② ③ ✓ ✗ § ¶ v. e.g. cf. ☐ ☑"],
+  ["번호","① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⓐ ⓑ ⓒ ⓓ ⓔ Ⅰ Ⅱ Ⅲ Ⅳ Ⅴ ⑴ ⑵ ⑶ ⑷ ⑸"],
+  ["화살표","→ ← ↑ ↓ ⇒ ⇐ ⇔ ↔ ↳ ↰ ↱ ➜ ➔ ⟶ ▸ ▹ ▾ ▴ ◂"],
+  ["불렛","• ◦ ▪ ▫ ○ ● ◆ ◇ □ ■ ★ ☆ ✦ ✧ ❖ ◈ ▶ ▷ ‣ ⁃ –"],
+  ["체크·표시","✓ ✔ ✗ ✘ ☐ ☑ ☒ ⚠ ❗ ❓ ⭐ 📌 💡 🔥 ❌ ⭕ 🔺 🔻"],
+  ["법률","§ §§ ¶ † ‡ ⚖ v. e.g. i.e. cf. see also but see accord contra id. at supra infra et seq. ∴ ∵ ≠ ≈ ≥ ≤ ± × ÷ ∞ °"],
+  ["괄호·문장부호","「 」 『 』 【 】 〈 〉 《 》 ‘ ’ “ ” — – … · ※ ☞ ☜ ⟨ ⟩ ⌈ ⌉"],
+  ["위첨자·수식","¹ ² ³ ⁴ ⁵ ⁿ ½ ⅓ ¼ ¾ α β γ δ λ μ π Σ Δ Ω √ ∑ ∝ ∈ ∀ ∃"]
+);
+/* 툴바 확장 버튼 추가 (기존 richBarHTML에 이어붙임) */
+Object.assign(I,{
+  undo:'<svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>',
+  redo:'<svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>',
+  alignL:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg>',
+  alignC:'<svg viewBox="0 0 24 24"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"/></svg>',
+  alignR:'<svg viewBox="0 0 24 24"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"/></svg>',
+  indent:'<svg viewBox="0 0 24 24"><path d="M4 6h16M10 10h10M10 14h10M4 18h16M4 10l3 2-3 2"/></svg>',
+  outdent:'<svg viewBox="0 0 24 24"><path d="M4 6h16M10 10h10M10 14h10M4 18h16M7 10l-3 2 3 2"/></svg>',
+  table:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M4 10h16M4 15h16M10 5v14M15 5v14"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg>',
+  sup:'<svg viewBox="0 0 24 24"><path d="M5 7l8 10M13 7 5 17M16 5c0-1 .8-1.6 1.8-1.6 1 0 1.7.6 1.7 1.4 0 1.6-3.5 2.6-3.5 4.6H20"/></svg>'
+});
+const _richBarHTML0=richBarHTML;
+richBarHTML=function(opts){
+  opts=opts||{};
+  let h=_richBarHTML0(opts);
+  const extra=`<span class="tsep"></span>${tb("undo","undo","되돌리기 (Ctrl+Z)")}${tb("redo","redo","다시 실행 (Ctrl+Y)")}
+    <span class="tsep"></span>${tb("alignL","alignL","왼쪽 정렬")}${tb("alignC","alignC","가운데")}${tb("alignR","alignR","오른쪽")}${tb("outdent","outdent","내어쓰기")}${tb("indent","indent","들여쓰기")}
+    <span class="tsep"></span>${tb("table","table","표 삽입")}${tb("check","check","체크박스 ☐ (클릭하면 ☑ 로 바뀜)")}${tb("sup","sup","위첨자")}`;
+  /* 사전 버튼 앞에 끼워넣기 */
+  return h.replace(`<span class="tsep"></span>\n    ${tb("dict","dict","사전 — 단어를 드래그하고 누르기")}`, extra+`<span class="tsep"></span>\n    ${tb("dict","dict","사전 — 단어를 드래그하고 누르기")}`);
+};
+const _bindRichBar0=bindRichBar;
+bindRichBar=function(opts){
+  _bindRichBar0(opts);
+  const bar=document.getElementById('richBar'); if(!bar)return;
+  const H={
+    undo:()=>cmd('undo'),redo:()=>cmd('redo'),
+    alignL:()=>cmd('justifyLeft'),alignC:()=>cmd('justifyCenter'),alignR:()=>cmd('justifyRight'),
+    indent:()=>cmd('indent'),outdent:()=>cmd('outdent'),
+    check:()=>cmd('insertText','☐ '),sup:()=>cmd('superscript'),
+    h1:()=>setBlockTag('h1'),h2:()=>setBlockTag('h2'),para:()=>setBlockTag('p'),quote:()=>setBlockTag('blockquote'),
+    clear:()=>{const ed=activeEd(); const blk=curBlock(ed); if(blk&&getSelection().isCollapsed){setBlockTag('p');return;} clearStyle('background-color',true);clearStyle('color',true);cmd('removeFormat');},
+    hl:e=>hlPop(e.currentTarget),
+    table:e=>tablePop(e.currentTarget)
+  };
+  bar.querySelectorAll('.tb[data-tb]').forEach(b=>{const f=H[b.dataset.tb]; if(f){b.onmousedown=e=>e.preventDefault(); b.onclick=e=>f(e);}});
+};
+/* ---------- 제목/블록 토글 (첫 줄이어도 확실히) ---------- */
+function curBlock(ed){ if(!ed)return null; const sel=getSelection(); if(!sel.rangeCount)return null; let n=sel.anchorNode; if(n.nodeType===3)n=n.parentNode; if(!ed.contains(n)||n===ed)return null; const b=n.closest('h1,h2,h3,blockquote'); return b&&ed.contains(b)?b:null; }
+function withCaretMarker(fn){
+  const sel=getSelection(); if(!sel.rangeCount){fn(null);return;}
+  const r=sel.getRangeAt(0).cloneRange(); r.collapse(true); const m=document.createElement('span'); m.id='__c'; r.insertNode(m);
+  fn(m);
+  const mm=document.getElementById('__c'); if(mm){const nr=document.createRange(); nr.setStartAfter(mm); nr.collapse(true); mm.remove(); sel.removeAllRanges(); sel.addRange(nr);}
+}
+function setBlockTag(tag){
+  const ed=activeEd(); if(!ed)return; ed.focus();
+  const cur=curBlock(ed);
+  if(cur&&(tag==='p'||cur.tagName.toLowerCase()===tag)){
+    withCaretMarker(()=>{const d=document.createElement('div'); d.innerHTML=cur.innerHTML; if(!strip(d.innerHTML)&&!d.querySelector('#__c'))d.innerHTML='<br>'; cur.replaceWith(d);});
+    edChanged(); return;
+  }
+  if(cur){ withCaretMarker(()=>{const n=document.createElement(tag); n.innerHTML=cur.innerHTML; cur.replaceWith(n);}); edChanged(); return; }
+  if(tag==='p'){cmd('formatBlock','div');return;}
+  cmd('formatBlock',tag);
+}
+/* Enter: 제목 맨 앞에서 → 위에 빈 줄 / Backspace: 제목 맨 앞에서 → 일반 문단 */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!=='Backspace')return; if(e.shiftKey||e.isComposing)return;
+  const ed=e.target.closest&&e.target.closest('[contenteditable]'); if(!ed||!document.getElementById('view')?.contains(ed))return;
+  const sel=getSelection(); if(!sel.rangeCount||!sel.isCollapsed)return;
+  const blk=curBlock(ed); if(!blk||!strip(blk.innerHTML))return;
+  const r=sel.getRangeAt(0); const t=document.createRange(); t.selectNodeContents(blk); t.setEnd(r.startContainer,r.startOffset);
+  if(strip(t.cloneContents().textContent||'')!=='')return; /* 맨 앞이 아님 */
+  e.preventDefault();
+  if(e.key==='Enter'){const d=document.createElement('div'); d.innerHTML='<br>'; blk.before(d);}
+  else{const d=document.createElement('div'); d.innerHTML=blk.innerHTML; blk.replaceWith(d); const nr=document.createRange(); nr.setStart(d,0); nr.collapse(true); sel.removeAllRanges(); sel.addRange(nr);}
+  ed.dispatchEvent(new Event('input',{bubbles:true}));
+},true);
+/* ---------- 형광펜 팝오버: 글자 형광펜 + 블록 배경 ---------- */
+function hlPop(btn){
+  const p=showPop(btn,`<div class="pop-t">글자 형광펜</div><div class="sw-grid">${HL_COLORS.map(([c,n])=>`<button class="swb" data-c="${c}" title="${n}" style="background:${c}"></button>`).join("")}<input type="color" id="swCustom" value="#fff2a8"></div>
+    <button class="mini pclose" data-none style="margin-top:6px;">글자 형광펜 없애기 (선택 부분)</button>
+    <div class="pop-t" style="margin-top:12px;">블록 배경 <span class="hint">제목 · 인용 · 박스 · 표 셀 — 커서만 두고 누르기</span></div>
+    <div class="sw-grid">${HL_COLORS.concat([["#f5edda","베이지"],["#eae4f6","라벤더"],["#e3eef8","하늘"],["#fde8e8","연분홍"]]).map(([c,n])=>`<button class="swb" data-bg="${c}" title="${n}" style="background:${c}"></button>`).join("")}<input type="color" id="bgCustom" value="#f5edda"></div>
+    <button class="mini pclose" data-bgnone style="margin-top:6px;">블록 배경 없애기</button>`);
+  const apply=c=>{closePop(); document.getElementById('hlBar').style.background=c; cmd('hiliteColor',c);};
+  p.querySelectorAll('[data-c]').forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>apply(b.dataset.c);});
+  p.querySelector('#swCustom').onchange=e=>apply(e.target.value);
+  p.querySelector('[data-none]').onclick=()=>{closePop();clearStyle('background-color');};
+  const bg=c=>{closePop(); const el=blockTarget(); if(!el){toast("커서를 제목·인용·박스·표 셀 안에 두고 누르세요");return;} if(c)el.style.background=c; else el.style.removeProperty('background'); edChanged();};
+  p.querySelectorAll('[data-bg]').forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>bg(b.dataset.bg);});
+  p.querySelector('#bgCustom').onchange=e=>bg(e.target.value);
+  p.querySelector('[data-bgnone]').onclick=()=>bg(null);
+}
+function blockTarget(){const ed=activeEd(); if(!ed)return null; const sel=getSelection(); if(!sel.rangeCount)return null; let n=sel.anchorNode; if(n.nodeType===3)n=n.parentNode; if(!ed.contains(n)||n===ed)return null; const b=n.closest('td,th,h1,h2,h3,blockquote,.callout'); return b&&ed.contains(b)?b:null;}
+
+/* ---------- 표 ---------- */
+function tablePop(btn){
+  const N=8; let cells=""; for(let r=1;r<=N;r++)for(let c=1;c<=N;c++)cells+=`<span data-r="${r}" data-c="${c}"></span>`;
+  const p=showPop(btn,`<div class="pop-t">표 삽입 <span class="hint" id="tblLbl">크기를 고르세요</span></div><div class="tbl-pick">${cells}</div>
+    <label style="font-size:12px;display:flex;gap:6px;align-items:center;margin-top:8px;"><input type="checkbox" id="tblHead" checked> 첫 행 머리글</label>`);
+  const grid=p.querySelector('.tbl-pick');
+  grid.addEventListener('mouseover',e=>{const s=e.target.closest('span'); if(!s)return; const R=+s.dataset.r,C=+s.dataset.c; grid.querySelectorAll('span').forEach(x=>x.classList.toggle('on',+x.dataset.r<=R&&+x.dataset.c<=C)); p.querySelector('#tblLbl').textContent=`${R}행 × ${C}열`;});
+  grid.querySelectorAll('span').forEach(s=>{s.onmousedown=e=>e.preventDefault(); s.onclick=()=>{const R=+s.dataset.r,C=+s.dataset.c,head=p.querySelector('#tblHead').checked; closePop(); insertTable(R,C,head);};});
+}
+function insertTable(R,C,head){
+  let h=`<table class="nt"><tbody>`;
+  for(let r=0;r<R;r++){h+="<tr>"; for(let c=0;c<C;c++)h+=(head&&r===0)?`<th></th>`:`<td>${r===0&&c===0&&!head?"":""}</td>`; h+="</tr>";}
+  h+=`</tbody></table><p><br></p>`;
+  insertBlock(h);
+  const ed=activeEd(); const t=ed&&[...ed.querySelectorAll('table.nt')].pop(); if(t){const first=t.querySelector('th,td'); const r=document.createRange(); r.selectNodeContents(first); r.collapse(false); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r);}
+}
+function curCell(){const ed=activeEd(); if(!ed)return null; const sel=getSelection(); if(!sel.rangeCount)return null; let n=sel.anchorNode; if(n.nodeType===3)n=n.parentNode; if(!ed.contains(n))return null; const c=n.closest('td,th'); return c&&ed.contains(c)&&c.closest('table.nt')?c:null;}
+const T={
+  rowBelow(){const c=curCell(); if(!c)return; const tr=c.parentElement; const n=tr.cloneNode(true); n.querySelectorAll('td,th').forEach(x=>{x.innerHTML="";x.removeAttribute('style');}); [...n.children].forEach(x=>{if(x.tagName==='TH'){const d=document.createElement('td'); n.replaceChild(d,x);}}); tr.after(n); edChanged();},
+  rowAbove(){const c=curCell(); if(!c)return; const tr=c.parentElement; const n=tr.cloneNode(true); n.querySelectorAll('td,th').forEach(x=>{x.innerHTML="";x.removeAttribute('style');}); tr.before(n); edChanged();},
+  colRight(){const c=curCell(); if(!c)return; const i=c.cellIndex; c.closest('table').querySelectorAll('tr').forEach(tr=>{const ref=tr.cells[i]; const n=document.createElement(ref?ref.tagName:'td'); n.innerHTML=""; if(ref)ref.after(n); else tr.appendChild(n);}); edChanged();},
+  colLeft(){const c=curCell(); if(!c)return; const i=c.cellIndex; c.closest('table').querySelectorAll('tr').forEach(tr=>{const ref=tr.cells[i]; const n=document.createElement(ref?ref.tagName:'td'); if(ref)ref.before(n); else tr.appendChild(n);}); edChanged();},
+  delRow(){const c=curCell(); if(!c)return; const t=c.closest('table'); const tr=c.parentElement; if(t.rows.length===1){T.delTable();return;} tr.remove(); edChanged();},
+  delCol(){const c=curCell(); if(!c)return; const t=c.closest('table'); const i=c.cellIndex; if(t.rows[0].cells.length===1){T.delTable();return;} t.querySelectorAll('tr').forEach(tr=>{if(tr.cells[i])tr.cells[i].remove();}); edChanged();},
+  delTable(){const c=curCell(); if(!c)return; if(!confirm("표를 삭제할까요?"))return; c.closest('table').remove(); edChanged();},
+  headRow(){const c=curCell(); if(!c)return; const tr=c.closest('table').rows[0]; const isTh=tr.cells[0].tagName==='TH'; [...tr.cells].forEach(x=>{const n=document.createElement(isTh?'td':'th'); n.innerHTML=x.innerHTML; if(x.getAttribute('style'))n.setAttribute('style',x.getAttribute('style')); x.replaceWith(n);}); edChanged();},
+  border(kind){const c=curCell(); if(!c)return; const t=c.closest('table'); t.classList.remove('nb','bold','zebra'); if(kind)t.classList.add(kind); edChanged();},
+  cellBg(col){const c=curCell(); if(!c)return; if(col)c.style.background=col; else c.style.removeProperty('background'); edChanged();},
+  rowBg(col){const c=curCell(); if(!c)return; [...c.parentElement.cells].forEach(x=>{if(col)x.style.background=col; else x.style.removeProperty('background');}); edChanged();}
+};
+let _tt=null;
+function tableTools(){
+  if(!_tt){_tt=document.createElement('div'); _tt.className='tbl-tools'; document.body.appendChild(_tt);
+    _tt.innerHTML=`<button data-t="rowAbove" title="위에 행">↥ 행</button><button data-t="rowBelow" title="아래에 행">↧ 행</button><button data-t="colLeft" title="왼쪽에 열">↤ 열</button><button data-t="colRight" title="오른쪽에 열">↦ 열</button>
+      <span class="tsep"></span><button data-t="delRow" title="행 삭제">행 ✕</button><button data-t="delCol" title="열 삭제">열 ✕</button>
+      <span class="tsep"></span><button data-t="headRow" title="첫 행 머리글 켜기/끄기">머리글</button>
+      <button data-p="bg" title="셀/행 배경색">셀 색 ▾</button><button data-p="border" title="테두리">테두리 ▾</button>
+      <span class="tsep"></span><button data-t="delTable" title="표 삭제" style="color:var(--danger)">표 삭제</button>`;
+    _tt.querySelectorAll('button').forEach(b=>{b.onmousedown=e=>e.preventDefault();});
+    _tt.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>T[b.dataset.t]());
+    _tt.querySelector('[data-p="bg"]').onclick=e=>{const p=showPop(e.currentTarget,`<div class="pop-t">셀 배경</div><div class="sw-grid">${HL_COLORS.concat([["#f5edda","베이지"],["#eae4f6","라벤더"],["#e3eef8","하늘"],["#f1f3f7","연회색"]]).map(([c,n])=>`<button class="swb" data-c="${c}" title="${n}" style="background:${c}"></button>`).join("")}<input type="color" id="cellCustom" value="#f1f3f7"></div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;"><button class="mini" data-row>행 전체에 적용</button><button class="mini" data-none>없애기</button></div>`);
+      let last=null; p.querySelectorAll('[data-c]').forEach(b=>{b.onmousedown=ev=>ev.preventDefault(); b.onclick=()=>{last=b.dataset.c; T.cellBg(last);};});
+      p.querySelector('#cellCustom').onchange=ev=>{last=ev.target.value; T.cellBg(last);};
+      p.querySelector('[data-row]').onclick=()=>{T.rowBg(last||"#f1f3f7");}; p.querySelector('[data-none]').onclick=()=>{T.cellBg(null);closePop();};};
+    _tt.querySelector('[data-p="border"]').onclick=e=>{const p=showPop(e.currentTarget,`<div class="pop-t">테두리</div><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="mini" data-b="">기본</button><button class="mini" data-b="bold">굵게</button><button class="mini" data-b="nb">없음</button><button class="mini" data-b="zebra">줄무늬</button></div>`);
+      p.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{T.border(b.dataset.b);closePop();});};
+  }
+  return _tt;
+}
+function updateTableTools(){
+  const c=curCell(); const tt=tableTools();
+  if(!c){tt.classList.remove('show');return;}
+  const t=c.closest('table'); const r=t.getBoundingClientRect();
+  tt.classList.add('show'); tt.style.left=Math.max(8,r.left)+'px'; tt.style.top=Math.max(8,r.top-38)+'px';
+}
+document.addEventListener('selectionchange',updateTableTools);
+window.addEventListener('scroll',()=>{if(_tt&&_tt.classList.contains('show'))updateTableTools();},true);
+/* Tab: 다음 칸 */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return; const c=curCell(); if(!c)return; e.preventDefault();
+  const t=c.closest('table'); const cells=[...t.querySelectorAll('td,th')]; let i=cells.indexOf(c)+(e.shiftKey?-1:1);
+  if(i>=cells.length){T.rowBelow(); const cells2=[...t.querySelectorAll('td,th')]; i=cells.length;} else if(i<0)i=0;
+  const tgt=[...t.querySelectorAll('td,th')][i]; if(!tgt)return; const r=document.createRange(); r.selectNodeContents(tgt); r.collapse(false); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r);
+});
+/* 열 너비 드래그 */
+let _rs=null;
+document.addEventListener('mousemove',e=>{
+  if(_rs){ const dx=e.clientX-_rs.x; const a=Math.max(40,_rs.wa+dx), b=Math.max(40,_rs.wb-dx); if(a===_rs.wa&&b===_rs.wb)return;
+    _rs.rows.forEach(tr=>{if(tr.cells[_rs.i])tr.cells[_rs.i].style.width=a+'px'; if(tr.cells[_rs.j])tr.cells[_rs.j].style.width=b+'px';}); return; }
+  const c=e.target.closest&&e.target.closest('table.nt td,table.nt th'); if(!c)return;
+  const rect=c.getBoundingClientRect(); c.style.cursor=(rect.right-e.clientX<6&&c.cellIndex<c.parentElement.cells.length-1)||(e.clientX-rect.left<6&&c.cellIndex>0)?'col-resize':'';
+});
+document.addEventListener('mousedown',e=>{
+  const c=e.target.closest&&e.target.closest('table.nt td,table.nt th'); if(!c)return;
+  const rect=c.getBoundingClientRect(); let i=null;
+  if(rect.right-e.clientX<6&&c.cellIndex<c.parentElement.cells.length-1)i=c.cellIndex; else if(e.clientX-rect.left<6&&c.cellIndex>0)i=c.cellIndex-1;
+  if(i===null)return; e.preventDefault();
+  const t=c.closest('table'); const rows=[...t.rows]; const ca=rows[0].cells[i],cb=rows[0].cells[i+1];
+  _rs={x:e.clientX,i,j:i+1,rows,wa:ca.getBoundingClientRect().width,wb:cb.getBoundingClientRect().width,ed:c.closest('[contenteditable]')};
+});
+document.addEventListener('mouseup',()=>{if(_rs){const ed=_rs.ed; _rs=null; if(ed)ed.dispatchEvent(new Event('input',{bubbles:true}));}});
+/* 체크박스 ☐ 클릭 → ☑ 토글 */
+document.addEventListener('click',e=>{
+  const ed=e.target.closest&&e.target.closest('[contenteditable]'); if(!ed||!document.getElementById('view')?.contains(ed))return;
+  const r=document.caretRangeFromPoint?document.caretRangeFromPoint(e.clientX,e.clientY):null; if(!r||r.startContainer.nodeType!==3)return;
+  const tn=r.startContainer, s=tn.textContent; const cand=[r.startOffset,r.startOffset-1];
+  for(const o of cand){ if(o<0||o>=s.length)continue; const ch=s[o]; if(ch==='☐'||ch==='☑'){ tn.textContent=s.slice(0,o)+(ch==='☐'?'☑':'☐')+s.slice(o+1); const nr=document.createRange(); nr.setStart(tn,o+1); nr.collapse(true); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(nr); ed.dispatchEvent(new Event('input',{bubbles:true})); return; } }
+});
+
+
+/* Tab = 들여쓰기, Shift+Tab = 내어쓰기 (표 안에서는 칸 이동) */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return; if(curCell())return;
+  const ed=e.target.closest&&e.target.closest('[contenteditable]'); if(!ed||!document.getElementById('view')?.contains(ed))return;
+  if(ed.matches('.bp-name,.bp-cite,#eTitle,#ePages,.blk-title,.vc,.c-name,[data-j]'))return; /* 짧은 칸은 기본 Tab(다음 칸)*/
+  e.preventDefault();
+  const sel=getSelection(); let n=sel.anchorNode; if(n&&n.nodeType===3)n=n.parentNode;
+  const inList=n&&n.closest&&n.closest('li');
+  if(e.shiftKey){ document.execCommand('outdent'); }
+  else if(inList){ document.execCommand('indent'); }
+  else if(sel.isCollapsed){
+    const r=sel.getRangeAt(0); const blk=(n&&n.closest&&n.closest('p,div,h1,h2,h3,li,blockquote'))||ed; const t=document.createRange(); t.selectNodeContents(blk); t.setEnd(r.startContainer,r.startOffset);
+    if(strip(t.cloneContents().textContent||'')==='')document.execCommand('indent'); /* 줄 맨 앞 → 문단 들여쓰기 */
+    else document.execCommand('insertHTML',false,'&emsp;'); } /* 줄 중간 → 넓은 공백 */
+  else { document.execCommand('indent'); }
+  ed.dispatchEvent(new Event('input',{bubbles:true}));
 });
 
 /* ================= init ================= */
